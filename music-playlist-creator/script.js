@@ -592,29 +592,6 @@ function shufflePlaylistSongs(playlistId) {
 }
 
 // =============================================================================
-// NAVIGATION ACTIVE STATE
-// =============================================================================
-
-/**
- * setActiveNavigation - Highlight the current page in navigation
- * Adds .active class to All Playlists link since we're on index.html
- */
-function setActiveNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-
-    navLinks.forEach(link => {
-        // Check if link points to index.html
-        if (link.getAttribute('href') === 'index.html') {
-            link.classList.add('active');
-            link.setAttribute('aria-current', 'page');
-        } else {
-            link.classList.remove('active');
-            link.removeAttribute('aria-current');
-        }
-    });
-}
-
-// =============================================================================
 // INITIALIZATION
 // =============================================================================
 
@@ -624,9 +601,6 @@ function setActiveNavigation() {
  */
 async function init() {
     console.log('Initializing Music Playlist Explorer...');
-
-    // Set active navigation
-    setActiveNavigation();
 
     // Load playlist data
     const playlists = await loadPlaylistData();
