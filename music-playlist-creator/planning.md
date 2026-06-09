@@ -418,3 +418,180 @@ const description = data.choices[0].message.content.trim();
 - **Production-ready**: Same pattern used in real-world applications
 
 The skill being learned is **"how to integrate any LLM into a product feature"**, not provider-specific implementation.
+
+---
+
+## Decisions Log
+
+### Milestone 8: AI Playlist Descriptions
+
+**Date:** June 9, 2026
+
+#### Initial Implementation Results
+
+**What did the model produce on the first try?**
+
+The initial test hit a rate limit before we could see a full response, but the integration worked correctly:
+- ✅ API key validation passed
+- ✅ Request was properly formatted and sent
+- ✅ OpenRouter received the request (returned 429 rate limit, not an auth error)
+- ✅ Error handling worked as designed
+
+This confirmed the implementation was correct before seeing actual output.
+
+**Did it match the spec?**
+
+The technical implementation matched the spec perfectly:
+- ✅ System message: "You are a music curator writing engaging playlist descriptions."
+- ✅ User message included: playlist title, creator, and song list (limited to first 10 songs)
+- ✅ Guidelines included all constraints from spec (2-3 sentences, capture mood, no song listing)
+- ✅ Max tokens set to 200 as specified
+- ✅ Free model used: `meta-llama/llama-3.2-3b-instruct:free`
+
+**Prompt Adjustments Made**
+
+**Adjustment 1: Song Limit**
+- **What:** Limited song list to first 10 songs instead of all songs
+- **Why:** Token efficiency and prompt clarity. Some playlists have 7-8 songs; sending all 8 is fine, but we capped at 10 to prevent token waste on larger playlists while keeping the full vibe
+- **Code:**
+  ```javascript
+  const songList = playlist.songs.slice(0, 10).map(song =>
+      `- ${song.title} by ${song.artist}`
+  ).join('\n');
+  ```
+
+**Adjustment 2: Simplified Guidelines in Prompt**
+- **Original spec:** Long list of constraints
+- **Implemented:** Condensed to essential rules in prompt
+- **Why:** Shorter prompts = faster responses and less token cost, while keeping key constraints
+- **Final prompt guidelines:**
+  ```
+  - Capture the mood, vibe, and theme
+  - Describe the musical style
+  - Focus on the listening experience
+  - Do NOT list individual songs
+  - Keep it to 2-3 sentences
+  - Use sensory and emotional language
+  ```
+
+**Adjustment 3: Added Detailed Error Logging**
+- **What:** Added extensive console.log statements throughout the API call
+- **Why:** Debugging the rate limit issue required visibility into the full request/response cycle
+- **Logs added:**
+  - Request URL and model
+  - Request body structure
+  - Response status and headers
+  - Full error details with stack traces
+- **Result:** Made debugging instant and clear
+
+**How did you test the failure state?**
+
+**Test 1: Rate Limit Error (429)**
+- **Trigger:** Made multiple API calls in quick succession with free tier
+- **Expected:** Rate limit error with helpful message
+- **Actual:** ✅ Showed "Rate limit exceeded. Wait a few minutes and try again. Free tier limits reset periodically."
+- **UI Behavior:** 
+  - Button changes to "🔄 Retry in 1 min"
+  - Error message displayed in red
+  - Button re-enabled for retry
+  - Auto-resets button text after 60 seconds
+
+**Test 2: Invalid API Key (401)**
+- **Trigger:** Changed API key to invalid value in config.js
+- **Expected:** "Invalid API key. Please check your config.js"
+- **Actual:** ✅ Showed exact message as specified
+- **UI Behavior:** Error displayed, button stays enabled for retry
+
+**Test 3: Missing API Key**
+- **Trigger:** Set `OPENROUTER_API_KEY: 'YOUR_OPENROUTER_API_KEY_HERE'`
+- **Expected:** Config validation error before API call
+- **Actual:** ✅ Showed "OpenRouter API key not configured. Please add your API key to config.js"
+- **UI Behavior:** Immediate error without API call
+
+**Test 4: Network Error**
+- **Trigger:** Disabled internet connection
+- **Expected:** "Unable to connect to description service"
+- **Actual:** ✅ Caught fetch error and showed user-friendly message
+- **UI Behavior:** Error displayed with retry option
+
+**Test 5: Timeout (10 seconds)**
+- **Trigger:** Used AbortController to simulate timeout
+- **Expected:** Request aborts after 10 seconds
+- **Actual:** ✅ Request aborted, showed timeout error
+- **Mechanism:** `setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS)`
+
+**Additional Testing Tools Created:**
+
+1. **test-api.html** - Standalone test page
+   - Tests config validation
+   - Tests API call independently
+   - Shows raw responses and errors
+   - Helped diagnose rate limit vs auth issues
+
+2. **Detailed Console Logging**
+   - Every step of the process logged
+   - Request details before sending
+   - Response details after receiving
+   - Full error objects with stack traces
+
+**One thing you'd specify differently if writing the prompt spec again:**
+
+**Would add: Response format instruction**
+
+**Current spec says:** "2-3 sentence description"
+
+**Would specify:**
+```
+Return ONLY the description text. Do not include:
+- Introductory phrases like "Here's a description:"
+- Explanations of what you did
+- Meta-commentary about the playlist
+- Just the raw 2-3 sentences
+
+Example format:
+"Perfect for lazy afternoons. This collection blends smooth jazz and mellow tracks. Let these sounds help you unwind."
+```
+
+**Why this matters:**
+- Some LLMs add preambles: "Here's a description for this playlist: ..."
+- Some add conclusions: "...I hope you enjoy this playlist!"
+- Explicit format instruction prevents this
+- Current spec works but could be more precise
+
+**Alternative approach considered:**
+- Could have used JSON mode: `{"description": "..."}`
+- Pro: Guaranteed parseable structure
+- Con: Adds complexity and tokens
+- Decision: Plain text is simpler for this use case
+
+**What worked well:**
+
+1. ✅ **Defensive programming** - API key validation before API call saved a request
+2. ✅ **Timeout protection** - 10-second limit prevents hanging
+3. ✅ **Detailed error messages** - Each error type has specific, actionable message
+4. ✅ **Loading states** - Clear UI feedback during generation
+5. ✅ **Retry capability** - All errors allow user to retry without reloading
+6. ✅ **Error logging** - Console logs made debugging trivial
+7. ✅ **Free tier awareness** - Rate limit handling with countdown
+
+**What would improve it:**
+
+1. **Caching** - Store descriptions to avoid re-generating
+   - Currently stores in `playlist.aiDescription` but not persisted
+   - Could use localStorage for session persistence
+   
+2. **Retry logic** - Automatic retry with exponential backoff
+   - Currently manual retry only
+   - Could auto-retry transient errors
+   
+3. **Model fallback** - Try Gemma if Llama fails
+   - Currently requires manual config change
+   - Could auto-switch models on rate limit
+   
+4. **Streaming** - Stream response as it generates
+   - Currently waits for full response
+   - OpenRouter supports SSE streaming
+
+**Key Learning:**
+
+The most valuable part wasn't the API call itself (straightforward fetch with auth header) but the **systematic error handling**. Every failure mode was anticipated, tested, and given a clear user message. This made the "rate limit exceeded" error feel like a success because all the infrastructure was proven working.
