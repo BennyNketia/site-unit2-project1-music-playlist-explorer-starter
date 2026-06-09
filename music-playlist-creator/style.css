@@ -1,6 +1,928 @@
+/*
+ * Visual Intent: Bold, sleek Spotify-inspired design with dark theme
+ * - Dark backgrounds (#121212) with rich contrast
+ * - Vibrant green accent color (#1DB954) for interactive elements
+ * - Smooth hover effects with subtle lifts and brightness changes
+ * - Modern typography with proper hierarchy
+ * - Clean spacing and breathing room between components
+ */
+
+/* Reset and Base Styles */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f8f8;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+/*
+ * Header Intent: Fixed dark navigation bar with subtle transparency
+ * - Stands out from content with darker background
+ * - Filter buttons should feel like Spotify's pill-style navigation
+ * - Clean, minimal, professional appearance
+ */
+header {
+    background-color: #000000;
+    padding: 16px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.filter-nav {
+    display: flex;
+    gap: 12px;
+}
+
+/*
+ * Page Navigation Intent: Links between Featured and All Playlists pages
+ * - Styled like filter buttons for consistency
+ * - Active state shows current page
+ * - Smooth transitions on interaction
+ */
+.page-nav {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-link {
+    padding: 12px 24px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.04);
+}
+
+.nav-link.active {
+    background-color: #1DB954;
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.nav-link.active:hover {
+    background-color: #1ed760;
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid #1DB954;
+    outline-offset: 3px;
+}
+
+/*
+ * Filter Button Intent: Spotify-style pill buttons
+ * - Rounded corners, subtle background
+ * - Active state with vibrant green highlight and better contrast
+ * - Smooth color transitions on interaction
+ * - Stronger visual difference between states
+ */
+.filter-button {
+    padding: 12px 24px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.filter-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.04);
+}
+
+.filter-button.active {
+    background-color: #1DB954;
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.filter-button.active:hover {
+    background-color: #1ed760;
+}
+
+.filter-button:focus-visible {
+    outline: 2px solid #1DB954;
+    outline-offset: 3px;
+}
+
+/* Main Content */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+    min-height: calc(100vh - 200px);
+}
+
+.playlist-gallery {
+    width: 100%;
+}
+
+/*
+ * Playlist Cards Grid Intent: Fixed 4x2 grid layout matching wireframe
+ * - Exactly 4 columns on desktop (4 on top, 4 on bottom)
+ * - Generous gaps for visual separation (increased for better breathing room)
+ * - Responsive adjustments for smaller screens
+ */
+.playlist-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px 24px; /* row-gap: 32px, column-gap: 24px */
+}
+
+/*
+ * Individual Playlist Card Intent: Spotify-style card with hover lift effect
+ * - Dark card background that brightens on hover
+ * - Smooth elevation with shadow to create depth
+ * - Rounded corners for modern aesthetic
+ * - Visual feedback showing interactivity
+ * - Increased padding for better content breathing room
+ */
+.playlist-card {
+    background-color: #181818;
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    outline: 2px solid transparent;
+}
+
+.playlist-card:hover {
+    background-color: #282828;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+.playlist-card:focus-within {
+    outline: 2px solid #1DB954;
+    outline-offset: 2px;
+}
+
+/*
+ * Playlist Image Intent: Square album-style cover with shadow
+ * - Consistent aspect ratio
+ * - Smooth corners matching card style
+ * - Subtle shadow for depth
+ * - Increased margin for better text separation
+ */
+.playlist-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    display: block;
+}
+
+.playlist-info {
+    padding: 0;
+}
+
+/*
+ * Typography Intent: Clear hierarchy with bold titles
+ * - Title should be prominent and easily readable (increased size)
+ * - Creator name subtle but WCAG AA compliant
+ * - Proper line-height for readability
+ * - Better spacing between elements
+ */
+.playlist-title {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 50px;
+}
+
+.playlist-creator {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: #a7a7a7;
+    line-height: 1.5;
+}
+
+/*
+ * Likes Intent: Clear interactive element with better affordance
+ * - Heart icon that shows it's clickable
+ * - Better contrast for readability
+ * - Hover effect indicates interactivity
+ */
+.playlist-likes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.like-icon {
+    font-size: 18px;
+    color: #a7a7a7;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.like-icon:hover {
+    color: #1DB954;
+    transform: scale(1.1);
+}
+
+.like-icon.liked {
+    color: #1DB954;
+}
+
+.playlist-card:hover .like-icon {
+    color: #1DB954;
+}
+
+.like-count {
+    font-size: 14px;
+    color: #a7a7a7;
+    font-weight: 600;
+}
+
+/* Like heart pulse animation */
+@keyframes likeHeartPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/*
+ * Modal Overlay Intent: Full-screen overlay with blur effect
+ * - Dark semi-transparent background
+ * - Creates focus on modal content
+ * - Smooth fade-in animation
+ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/*
+ * Modal Content Intent: Elevated card floating above content
+ * - Dark background consistent with theme
+ * - Generous padding for comfortable reading
+ * - Rounded corners and strong shadow for depth
+ * - Scrollable for long content
+ */
+.modal-content {
+    background-color: #181818;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    border-radius: 12px;
+    padding: 40px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+    animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Custom scrollbar for modal */
+.modal-content::-webkit-scrollbar {
+    width: 12px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #282828;
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #535353;
+    border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #737373;
+}
+
+/*
+ * Modal Close Button Intent: Unobtrusive X button
+ * - Clear close affordance
+ * - Brightens on hover
+ * - Positioned outside content flow
+ */
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #b3b3b3;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    line-height: 1;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: #ffffff;
+    background-color: #282828;
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #282828;
+}
+
+.modal-playlist-image {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.modal-playlist-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modal-playlist-title {
+    margin: 0 0 12px 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.modal-playlist-creator {
+    margin: 0;
+    font-size: 16px;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+/*
+ * Modal Songs Intent: Clean list with hover states
+ * - Each song is a distinct interactive row
+ * - Hover reveals interactivity
+ * - Clear information hierarchy
+ */
+.modal-songs {
+    margin-bottom: 24px;
+}
+
+.song-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.song-item:hover {
+    background-color: #282828;
+}
+
+.song-thumbnail {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+    flex-shrink: 0;
+}
+
+.song-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.song-title {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-artist,
+.song-album {
+    margin: 0;
+    font-size: 14px;
+    color: #b3b3b3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-duration {
+    font-size: 14px;
+    color: #b3b3b3;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+/*
+ * Song Like Button Intent: Interactive heart that turns green
+ * - Clear visual feedback on hover
+ * - Color change indicates liked state
+ */
+.song-like-button {
+    font-size: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #b3b3b3;
+    padding: 8px;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.song-like-button:hover {
+    color: #1DB954;
+}
+
+.song-like-button.liked {
+    color: #1DB954;
+}
+
+/*
+ * Modal Actions Intent: Prominent action button
+ * - Vibrant green Spotify-style button
+ * - Clear call-to-action for shuffle
+ * - Brightens on hover
+ */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 24px;
+    border-top: 1px solid #282828;
+}
+
+.shuffle-button {
+    padding: 14px 32px;
+    background-color: #1DB954;
+    color: #000000;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.shuffle-button:hover {
+    background-color: #1ed760;
+    transform: scale(1.05);
+}
+
+.shuffle-button:active {
+    transform: scale(0.98);
+}
+
+.shuffle-button.shuffled {
+    animation: shuffleButtonPulse 0.3s ease;
+}
+
+@keyframes shuffleButtonPulse {
+    0% {
+        transform: scale(1);
+        background-color: #1DB954;
+    }
+    50% {
+        transform: scale(1.1);
+        background-color: #1ed760;
+    }
+    100% {
+        transform: scale(1);
+        background-color: #1DB954;
+    }
+}
+
+/*
+ * Empty State & Error Messages Intent: User-friendly feedback
+ * - Clear messaging when no content available
+ * - Centered layout for visual balance
+ * - Consistent with dark theme
+ */
+.empty-state,
+.error-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state-message,
+.error-message {
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 12px 0;
+}
+
+.empty-state-subtitle {
+    font-size: 16px;
+    color: #a7a7a7;
+    margin: 0;
+}
+
+.error-message {
+    color: #ff6b6b;
+}
+
+.no-songs {
+    text-align: center;
+    color: #a7a7a7;
+    font-size: 16px;
+    padding: 40px 20px;
+}
+
+/*
+ * Footer Intent: Subtle footer that doesn't compete with content
+ * - Dark background matching overall theme
+ * - Small text for legal/copyright info
+ * - Proper spacing from main content
+ */
+footer {
+    background-color: #000000;
+    padding: 32px;
+    text-align: center;
+    margin-top: 80px;
+    border-top: 1px solid #282828;
+}
+
+footer p {
+    margin: 0;
+    color: #b3b3b3;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+/*
+ * Responsive Design Intent: Graceful degradation on smaller screens
+ * - Grid adjusts column count based on viewport
+ * - Modal stacks content vertically on mobile
+ * - Maintains readability and usability at all sizes
+ */
+@media (max-width: 1200px) {
+    .playlist-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    main {
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 992px) {
+    .playlist-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    main {
+        padding: 32px 24px;
+    }
+
+    .header-container {
+        padding: 0 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .playlist-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .modal-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .modal-content {
+        padding: 24px;
+    }
+
+    .modal-playlist-title {
+        font-size: 24px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .playlist-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .header-container {
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 16px;
+    }
+
+    main {
+        padding: 24px 16px;
+    }
+
+    .modal-playlist-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .song-item {
+        gap: 12px;
+        padding: 8px;
+    }
+}
+
+/* =============================================================================
+ * FEATURED PAGE STYLES
+ * ============================================================================= */
+
+/*
+ * Featured Page Intent: Two-column layout showcasing one playlist
+ * - Left: Large cover art and playlist info (40% width)
+ * - Right: Full song list (60% width)
+ * - Emphasis on visual presentation
+ * - Responsive stacking on smaller screens
+ */
+
+.featured-main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+    min-height: calc(100vh - 200px);
+}
+
+.featured-container {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+}
+
+/* Left Column: Cover Art and Info */
+.featured-left {
+    flex: 0 0 400px;
+    position: sticky;
+    top: 100px;
+}
+
+.featured-cover-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    margin-bottom: 24px;
+    display: block;
+}
+
+.featured-info {
+    padding: 0;
+}
+
+.featured-playlist-title {
+    margin: 0 0 12px 0;
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+.featured-playlist-creator {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #b3b3b3;
+    font-weight: 400;
+}
+
+.featured-playlist-stats {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: #a7a7a7;
+    font-weight: 600;
+}
+
+.featured-likes {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+}
+
+.featured-like-button {
+    font-size: 32px;
+    color: #a7a7a7;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.featured-like-button:hover {
+    color: #1DB954;
+    transform: scale(1.1);
+}
+
+.featured-like-button.liked {
+    color: #1DB954;
+}
+
+.featured-like-count {
+    font-size: 18px;
+    color: #a7a7a7;
+    font-weight: 700;
+}
+
+/* Right Column: Song List */
+.featured-right {
+    flex: 1;
+    min-width: 0;
+}
+
+.featured-songs-header {
+    margin: 0 0 24px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffffff;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #282828;
+}
+
+.featured-songs-list {
+    /* Inherits song-item styles from existing modal styles */
+}
+
+.loading-message {
+    text-align: center;
+    color: #a7a7a7;
+    font-size: 16px;
+    padding: 40px 20px;
+}
+
+/* Responsive Featured Page */
+@media (max-width: 992px) {
+    .featured-container {
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .featured-left {
+        flex: none;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        position: static;
+    }
+
+    .featured-playlist-title {
+        font-size: 36px;
+        text-align: center;
+    }
+
+    .featured-playlist-creator,
+    .featured-playlist-stats {
+        text-align: center;
+    }
+
+    .featured-likes {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .featured-main {
+        padding: 32px 24px;
+    }
+
+    .featured-left {
+        max-width: 300px;
+    }
+
+    .featured-playlist-title {
+        font-size: 32px;
+    }
+
+    .featured-like-button {
+        font-size: 28px;
+    }
+
+    .featured-songs-header {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .featured-main {
+        padding: 24px 16px;
+    }
+
+    .featured-playlist-title {
+        font-size: 28px;
+    }
+
+    .featured-cover-image {
+        border-radius: 6px;
+    }
 }

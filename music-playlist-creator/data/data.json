@@ -1,0 +1,345 @@
+{
+  "playlists": [
+    {
+      "id": "pl-001",
+      "title": "Chill Vibes",
+      "creator": "DJ Smooth",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 1247,
+      "featured": true,
+      "songs": [
+        {
+          "id": "song-001",
+          "title": "Sunset Dreams",
+          "artist": "The Wavelengths",
+          "album": "Coastal Nights",
+          "duration": "3:45",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-002",
+          "title": "Coffee Shop Jazz",
+          "artist": "Urban Trio",
+          "album": "Morning Brew",
+          "duration": "4:12",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-003",
+          "title": "Lazy Sunday",
+          "artist": "Mellow Sounds",
+          "album": "Weekend Moods",
+          "duration": "3:28",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-004",
+          "title": "Ocean Breeze",
+          "artist": "Coastal Collective",
+          "album": "Sea Sessions",
+          "duration": "5:03",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-002",
+      "title": "Workout Energy",
+      "creator": "FitBeats",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 3892,
+      "featured": true,
+      "songs": [
+        {
+          "id": "song-005",
+          "title": "Push Harder",
+          "artist": "Motivation Masters",
+          "album": "Gym Anthems",
+          "duration": "3:15",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-006",
+          "title": "Power Hour",
+          "artist": "Electric Pulse",
+          "album": "Maximum Intensity",
+          "duration": "3:42",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-007",
+          "title": "Beast Mode",
+          "artist": "Adrenaline Rush",
+          "album": "Unstoppable",
+          "duration": "3:58",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-003",
+      "title": "Late Night Study",
+      "creator": "Focus Flow",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 2156,
+      "featured": false,
+      "songs": [
+        {
+          "id": "song-008",
+          "title": "Concentration",
+          "artist": "Study Sounds",
+          "album": "Deep Focus",
+          "duration": "6:24",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-009",
+          "title": "Brain Waves",
+          "artist": "Ambient Collective",
+          "album": "Productivity",
+          "duration": "5:45",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-010",
+          "title": "Library Vibes",
+          "artist": "Quiet Hours",
+          "album": "Study Sessions",
+          "duration": "4:33",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-011",
+          "title": "Late Night Coding",
+          "artist": "Developer Beats",
+          "album": "Code & Flow",
+          "duration": "7:12",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-012",
+          "title": "Mental Clarity",
+          "artist": "Focus Masters",
+          "album": "Peak Performance",
+          "duration": "5:28",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-004",
+      "title": "Road Trip Anthems",
+      "creator": "Highway Heroes",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 5431,
+      "featured": true,
+      "songs": [
+        {
+          "id": "song-013",
+          "title": "Open Road",
+          "artist": "The Travelers",
+          "album": "Journey On",
+          "duration": "4:05",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-014",
+          "title": "Miles to Go",
+          "artist": "Wanderlust Band",
+          "album": "Cross Country",
+          "duration": "3:47",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-015",
+          "title": "Highway Dreams",
+          "artist": "Route 66 Collective",
+          "album": "Road Stories",
+          "duration": "4:21",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-005",
+      "title": "Jazz Classics",
+      "creator": "The Jazz Curator",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 987,
+      "featured": false,
+      "songs": [
+        {
+          "id": "song-016",
+          "title": "Blue Notes",
+          "artist": "Miles Ahead Quartet",
+          "album": "Kind of Classic",
+          "duration": "6:18",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-017",
+          "title": "Autumn in Manhattan",
+          "artist": "City Lights Trio",
+          "album": "Urban Jazz",
+          "duration": "5:42",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-018",
+          "title": "Smooth Operator",
+          "artist": "Velvet Voice",
+          "album": "Timeless",
+          "duration": "4:55",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-019",
+          "title": "Take Five More",
+          "artist": "The Cool Cats",
+          "album": "Time Signatures",
+          "duration": "5:24",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-006",
+      "title": "Indie Discoveries",
+      "creator": "Alternative Nation",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 2743,
+      "featured": false,
+      "songs": [
+        {
+          "id": "song-020",
+          "title": "Bedroom Pop",
+          "artist": "Lo-Fi Kids",
+          "album": "DIY Dreams",
+          "duration": "3:33",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-021",
+          "title": "Garage Band Revival",
+          "artist": "The Unknowns",
+          "album": "Underground",
+          "duration": "3:18",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-022",
+          "title": "Coffee and Vinyl",
+          "artist": "Analog Hearts",
+          "album": "Nostalgia Trip",
+          "duration": "4:07",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-007",
+      "title": "Summer Party Mix",
+      "creator": "Party Starters",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 6824,
+      "featured": true,
+      "songs": [
+        {
+          "id": "song-023",
+          "title": "Dance All Night",
+          "artist": "DJ Sunshine",
+          "album": "Summer Hits",
+          "duration": "3:25",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-024",
+          "title": "Pool Party",
+          "artist": "The Fun Times",
+          "album": "Good Vibes Only",
+          "duration": "3:52",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-025",
+          "title": "Sunset Beach",
+          "artist": "Tropical Beats",
+          "album": "Island Life",
+          "duration": "4:14",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-026",
+          "title": "BBQ Jam",
+          "artist": "Backyard Band",
+          "album": "Cookout Classics",
+          "duration": "3:38",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    },
+    {
+      "id": "pl-008",
+      "title": "Classical Focus",
+      "creator": "Symphony Selections",
+      "coverImage": "assets/img/playlist.png",
+      "likes": 1532,
+      "featured": false,
+      "songs": [
+        {
+          "id": "song-027",
+          "title": "Morning Sonata",
+          "artist": "Chamber Orchestra",
+          "album": "Dawn Compositions",
+          "duration": "8:45",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-028",
+          "title": "Peaceful Prelude",
+          "artist": "Piano Virtuoso",
+          "album": "Solo Works",
+          "duration": "6:32",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-029",
+          "title": "Strings of Serenity",
+          "artist": "String Quartet",
+          "album": "Harmonious",
+          "duration": "7:18",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        }
+      ]
+    }
+  ]
+}
