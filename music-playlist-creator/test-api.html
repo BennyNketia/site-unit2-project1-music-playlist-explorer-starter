@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #7c3aed;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success { color: #1DB954; }
+        .error { color: #ff6b6b; }
+        .info { color: #8b5cf6; }
+    </style>
+</head>
+<body>
+    <h1>OpenRouter API Test</h1>
+
+    <div>
+        <button onclick="testConfig()">1. Test Config</button>
+        <button onclick="testAPI()">2. Test API Call</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script src="config.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            output.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        function testConfig() {
+            clearOutput();
+            log('=== Testing Configuration ===');
+
+            if (typeof CONFIG === 'undefined') {
+                log('❌ CONFIG is not defined! Make sure config.js is loaded.', 'error');
+                return;
+            }
+
+            log('✅ CONFIG object found');
+            log(`API URL: ${CONFIG.OPENROUTER_API_URL}`);
+            log(`Model: ${CONFIG.MODEL}`);
+            log(`Max Tokens: ${CONFIG.MAX_TOKENS}`);
+            log(`Timeout: ${CONFIG.TIMEOUT_MS}ms`);
+
+            if (!CONFIG.OPENROUTER_API_KEY) {
+                log('❌ API key is missing!', 'error');
+            } else if (CONFIG.OPENROUTER_API_KEY === 'YOUR_OPENROUTER_API_KEY_HERE') {
+                log('❌ API key not configured (still placeholder)', 'error');
+            } else if (CONFIG.OPENROUTER_API_KEY.startsWith('sk-or-v1-')) {
+                log(`✅ API key looks valid: ${CONFIG.OPENROUTER_API_KEY.substring(0, 15)}...`, 'success');
+            } else {
+                log('⚠️ API key format seems unusual', 'error');
+                log(`   Key starts with: ${CONFIG.OPENROUTER_API_KEY.substring(0, 10)}`, 'error');
+            }
+        }
+
+        async function testAPI() {
+            clearOutput();
+            log('=== Testing API Call ===');
+
+            if (!CONFIG || !CONFIG.OPENROUTER_API_KEY || CONFIG.OPENROUTER_API_KEY === 'YOUR_OPENROUTER_API_KEY_HERE') {
+                log('❌ Please configure your API key first!', 'error');
+                return;
+            }
+
+            const testPlaylist = {
+                title: 'Chill Vibes',
+                creator: 'DJ Smooth',
+                songs: [
+                    { title: 'Sunset Dreams', artist: 'The Wavelengths' },
+                    { title: 'Coffee Shop Jazz', artist: 'Urban Trio' },
+                    { title: 'Lazy Sunday', artist: 'Mellow Sounds' }
+                ]
+            };
+
+            log('Test playlist: ' + testPlaylist.title);
+            log('Making API request...');
+
+            const songList = testPlaylist.songs.map(s => `- ${s.title} by ${s.artist}`).join('\\n');
+
+            const requestBody = {
+                model: CONFIG.MODEL,
+                max_tokens: CONFIG.MAX_TOKENS,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a music curator writing engaging playlist descriptions.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Generate a 2-3 sentence description for this playlist:
+
+Playlist: ${testPlaylist.title}
+Curator: ${testPlaylist.creator}
+Songs:
+${songList}
+
+Guidelines: Capture the mood and vibe. Keep it to 2-3 sentences.
+
+Description:`
+                    }
+                ]
+            };
+
+            log('Request body: ' + JSON.stringify(requestBody, null, 2));
+
+            try {
+                const response = await fetch(CONFIG.OPENROUTER_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'Music Playlist Explorer Test'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                log(`Response status: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log('❌ API Error Response:', 'error');
+                    log(errorText, 'error');
+
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        log('Parsed error:', 'error');
+                        log(JSON.stringify(errorData, null, 2), 'error');
+                    } catch (e) {
+                        // Not JSON
+                    }
+                    return;
+                }
+
+                const data = await response.json();
+                log('✅ API Response:', 'success');
+                log(JSON.stringify(data, null, 2), 'success');
+
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    log('\\n✨ Generated Description:', 'success');
+                    log(data.choices[0].message.content, 'success');
+                }
+
+            } catch (error) {
+                log('❌ Error:', 'error');
+                log(error.name + ': ' + error.message, 'error');
+                log(error.stack, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

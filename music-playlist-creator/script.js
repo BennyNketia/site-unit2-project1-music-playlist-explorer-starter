@@ -667,6 +667,11 @@ Description:`;
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
 
     try {
+        // Log request details for debugging
+        console.log('Making API request to:', CONFIG.OPENROUTER_API_URL);
+        console.log('Using model:', CONFIG.MODEL);
+        console.log('Request body:', requestBody);
+
         // Make API call
         const response = await fetch(CONFIG.OPENROUTER_API_URL, {
             method: 'POST',
@@ -682,10 +687,17 @@ Description:`;
 
         clearTimeout(timeoutId);
 
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
         // Check response status
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('API error:', response.status, response.statusText, errorData);
+            console.error('API error details:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorData: errorData
+            });
 
             if (response.status === 401) {
                 throw new Error('Invalid API key. Please check your config.js');
@@ -698,10 +710,11 @@ Description:`;
 
         // Parse response
         const data = await response.json();
+        console.log('API response data:', data);
 
         // Validate response structure
         if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-            console.error('Invalid API response:', data);
+            console.error('Invalid API response structure:', data);
             throw new Error('Received invalid description format');
         }
 
@@ -763,8 +776,12 @@ async function handleGetDescriptionClick() {
     descriptionElement.className = 'playlist-description loading';
 
     try {
+        console.log('Attempting to get description for playlist:', playlist.title);
+
         // Get AI description
         const description = await getPlaylistDescription(playlist);
+
+        console.log('Successfully received description:', description);
 
         // Display success
         descriptionElement.textContent = description;
@@ -777,7 +794,10 @@ async function handleGetDescriptionClick() {
         playlist.aiDescription = description;
 
     } catch (error) {
-        console.error('Failed to get description:', error);
+        console.error('Failed to get description - Full error:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
 
         // Display error message
         descriptionElement.textContent = error.message || 'Unable to generate description. Please try again.';
