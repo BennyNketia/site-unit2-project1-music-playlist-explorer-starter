@@ -421,6 +421,135 @@ The skill being learned is **"how to integrate any LLM into a product feature"**
 
 ---
 
+## Create Playlist Feature
+
+### What does the Create Playlist form include?
+
+The form allows users to create a new playlist by providing:
+- **Playlist name** (required) — text input
+- **Creator/Author name** (required) — text input
+- **Song list** (at least 1 song required) — dynamic list of songs
+
+### What information is required for each song?
+
+For each song, users provide:
+- **Song title** (required) — text input
+- **Artist name** (required) — text input
+- **Album name** (optional) — text input
+- **Duration** (required) — text input in format "M:SS" (e.g., "3:45")
+
+### How do users add multiple songs?
+
+- Form starts with 1 empty song input
+- Users can click "Add Another Song" button to add more song fields
+- Users can remove songs (must keep at least 1)
+- Song fields are dynamically added/removed with JavaScript
+
+### What happens when the form is submitted?
+
+**Validation:**
+1. Check playlist name is not empty
+2. Check creator name is not empty
+3. Check at least 1 song is provided
+4. Check all required song fields are filled
+5. Validate duration format (M:SS or MM:SS)
+6. Show error messages for invalid fields
+
+**If valid:**
+1. Generate unique playlist ID (e.g., "pl-" + timestamp)
+2. Generate unique song IDs for each song (e.g., "song-" + timestamp + index)
+3. Create playlist object with default values:
+   - `coverImage`: "assets/img/playlist.png" (default)
+   - `likes`: 0 (new playlists start with 0 likes)
+   - `featured`: false (not featured by default)
+   - `likedByUser`: false
+4. Add playlist to `playlistsData` array
+5. Re-render playlist cards to show new playlist
+6. Close the form modal
+7. Clear form fields
+8. Show success message
+
+### What happens when the form is cancelled?
+
+- Close the form modal
+- Clear all form fields (reset to empty state)
+- No changes to data
+- User returns to main playlist view
+
+### Where is the "Create Playlist" button?
+
+- Located in the header next to the page navigation
+- Always visible on the main playlists page
+- Opens the create playlist modal when clicked
+
+### Function Specs
+
+#### `openCreatePlaylistModal()`
+- **Takes in:** Nothing
+- **Returns:** Nothing (void)
+- **What it does:** Opens the create playlist form modal
+- **Side effects:** Shows modal overlay, focuses on first input field
+
+#### `closeCreatePlaylistModal()`
+- **Takes in:** Nothing
+- **Returns:** Nothing (void)
+- **What it does:** Closes the form modal and resets fields
+- **Side effects:** Hides modal, clears form, removes dynamically added song fields
+
+#### `addSongField()`
+- **Takes in:** Nothing
+- **Returns:** Nothing (void)
+- **What it does:** Adds a new set of song input fields to the form
+- **Side effects:** Creates new DOM elements for song inputs, updates song counter
+
+#### `removeSongField(index)`
+- **Takes in:** `index` (number) — which song field to remove
+- **Returns:** Nothing (void)
+- **What it does:** Removes a song field from the form
+- **Side effects:** Removes DOM elements, updates song counter, prevents removal if only 1 song remains
+
+#### `validatePlaylistForm(formData)`
+- **Takes in:** `formData` (object) — playlist name, creator, songs array
+- **Returns:** `{ valid: boolean, errors: string[] }` — validation result
+- **What it does:** Validates all form inputs
+- **Validation rules:**
+  - Playlist name: not empty, max 100 characters
+  - Creator name: not empty, max 50 characters
+  - Songs: at least 1 song
+  - Song title: not empty, max 100 characters
+  - Song artist: not empty, max 50 characters
+  - Song album: max 50 characters (optional)
+  - Duration: matches format M:SS or MM:SS (e.g., "3:45" or "12:30")
+
+#### `validateDuration(duration)`
+- **Takes in:** `duration` (string) — duration in "M:SS" format
+- **Returns:** `boolean` — true if valid format
+- **What it does:** Validates duration format using regex
+- **Valid formats:** "3:45", "12:30", "0:30"
+- **Invalid formats:** "345", "3:5", "3:456", "abc"
+
+#### `createPlaylist(formData)`
+- **Takes in:** `formData` (object) — validated form data
+- **Returns:** `playlist` (object) — newly created playlist
+- **What it does:** Generates IDs, creates playlist object with songs
+- **ID generation:** Uses timestamp for uniqueness
+- **Default values:** coverImage, likes = 0, featured = false
+
+#### `handleCreatePlaylistSubmit(event)`
+- **Takes in:** `event` (Event) — form submit event
+- **Returns:** Nothing (void)
+- **What it does:** Main form submission handler
+- **Process:**
+  1. Prevent default form submission
+  2. Gather form data
+  3. Validate inputs
+  4. Show errors or create playlist
+  5. Update UI
+  6. Close modal
+  7. Show success message
+
+---
+
 ## Decisions Log
 
 ### Milestone 8: AI Playlist Descriptions

@@ -862,6 +862,434 @@ function resetDescriptionUI() {
 }
 
 // =============================================================================
+// CREATE PLAYLIST FUNCTIONALITY
+// =============================================================================
+
+let songFieldCounter = 0;
+
+/**
+ * openCreatePlaylistModal - Open the create playlist form modal
+ */
+function openCreatePlaylistModal() {
+    const modal = document.querySelector('.create-modal-overlay');
+    if (modal) {
+        modal.style.display = 'flex';
+
+        // Reset form and add initial song field
+        resetCreatePlaylistForm();
+        addSongField();
+
+        // Focus on first input
+        setTimeout(() => {
+            const firstInput = document.getElementById('playlist-name');
+            if (firstInput) firstInput.focus();
+        }, 100);
+    }
+}
+
+/**
+ * closeCreatePlaylistModal - Close the create playlist modal
+ */
+function closeCreatePlaylistModal() {
+    const modal = document.querySelector('.create-modal-overlay');
+    if (modal) {
+        modal.style.display = 'none';
+        resetCreatePlaylistForm();
+    }
+}
+
+/**
+ * resetCreatePlaylistForm - Clear all form fields and reset to initial state
+ */
+function resetCreatePlaylistForm() {
+    const form = document.getElementById('create-playlist-form');
+    if (form) {
+        form.reset();
+    }
+
+    // Clear songs container
+    const songsContainer = document.getElementById('songs-container');
+    if (songsContainer) {
+        songsContainer.innerHTML = '';
+    }
+
+    // Reset counter
+    songFieldCounter = 0;
+
+    // Hide errors
+    const errorsDiv = document.querySelector('.form-errors');
+    if (errorsDiv) {
+        errorsDiv.style.display = 'none';
+        errorsDiv.innerHTML = '';
+    }
+}
+
+/**
+ * addSongField - Add a new song input field to the form
+ */
+function addSongField() {
+    const songsContainer = document.getElementById('songs-container');
+    if (!songsContainer) return;
+
+    songFieldCounter++;
+    const songIndex = songFieldCounter;
+
+    const songField = document.createElement('div');
+    songField.className = 'song-field';
+    songField.setAttribute('data-song-index', songIndex);
+
+    songField.innerHTML = `
+        <div class="song-field-header">
+            <h4>Song ${songIndex}</h4>
+            <button type="button" class="remove-song-button" data-song-index="${songIndex}" aria-label="Remove song ${songIndex}">
+                Remove
+            </button>
+        </div>
+        <div class="song-field-inputs">
+            <div class="form-group">
+                <label for="song-title-${songIndex}">Song Title <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="song-title-${songIndex}"
+                    name="songTitle"
+                    maxlength="100"
+                    required
+                    placeholder="e.g., Sunset Dreams"
+                    data-song-index="${songIndex}">
+            </div>
+            <div class="form-group">
+                <label for="song-artist-${songIndex}">Artist <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="song-artist-${songIndex}"
+                    name="songArtist"
+                    maxlength="50"
+                    required
+                    placeholder="e.g., The Wavelengths"
+                    data-song-index="${songIndex}">
+            </div>
+            <div class="form-group">
+                <label for="song-album-${songIndex}">Album (optional)</label>
+                <input
+                    type="text"
+                    id="song-album-${songIndex}"
+                    name="songAlbum"
+                    maxlength="50"
+                    placeholder="e.g., Coastal Nights"
+                    data-song-index="${songIndex}">
+            </div>
+            <div class="form-group">
+                <label for="song-duration-${songIndex}">Duration <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="song-duration-${songIndex}"
+                    name="songDuration"
+                    maxlength="6"
+                    required
+                    placeholder="e.g., 3:45"
+                    pattern="[0-9]{1,2}:[0-5][0-9]"
+                    data-song-index="${songIndex}">
+            </div>
+        </div>
+    `;
+
+    songsContainer.appendChild(songField);
+
+    // Attach remove button listener
+    const removeButton = songField.querySelector('.remove-song-button');
+    removeButton.addEventListener('click', () => removeSongField(songIndex));
+}
+
+/**
+ * removeSongField - Remove a song field from the form
+ *
+ * @param {number} songIndex - The index of the song field to remove
+ */
+function removeSongField(songIndex) {
+    const songsContainer = document.getElementById('songs-container');
+    if (!songsContainer) return;
+
+    // Don't allow removal if only 1 song remains
+    const songFields = songsContainer.querySelectorAll('.song-field');
+    if (songFields.length <= 1) {
+        alert('At least one song is required');
+        return;
+    }
+
+    // Find and remove the song field
+    const songField = songsContainer.querySelector(`[data-song-index="${songIndex}"]`);
+    if (songField) {
+        songField.remove();
+    }
+}
+
+/**
+ * validateDuration - Validate duration format (M:SS or MM:SS)
+ *
+ * @param {string} duration - Duration string to validate
+ * @returns {boolean} - True if valid format
+ */
+function validateDuration(duration) {
+    const durationRegex = /^[0-9]{1,2}:[0-5][0-9]$/;
+    return durationRegex.test(duration);
+}
+
+/**
+ * validatePlaylistForm - Validate all form inputs
+ *
+ * @param {Object} formData - Form data to validate
+ * @returns {Object} - { valid: boolean, errors: string[] }
+ */
+function validatePlaylistForm(formData) {
+    const errors = [];
+
+    // Validate playlist name
+    if (!formData.playlistName || formData.playlistName.trim() === '') {
+        errors.push('Playlist name is required');
+    } else if (formData.playlistName.length > 100) {
+        errors.push('Playlist name must be 100 characters or less');
+    }
+
+    // Validate creator name
+    if (!formData.creatorName || formData.creatorName.trim() === '') {
+        errors.push('Creator name is required');
+    } else if (formData.creatorName.length > 50) {
+        errors.push('Creator name must be 50 characters or less');
+    }
+
+    // Validate songs
+    if (!formData.songs || formData.songs.length === 0) {
+        errors.push('At least one song is required');
+    } else {
+        formData.songs.forEach((song, index) => {
+            const songNum = index + 1;
+
+            if (!song.title || song.title.trim() === '') {
+                errors.push(`Song ${songNum}: Title is required`);
+            } else if (song.title.length > 100) {
+                errors.push(`Song ${songNum}: Title must be 100 characters or less`);
+            }
+
+            if (!song.artist || song.artist.trim() === '') {
+                errors.push(`Song ${songNum}: Artist is required`);
+            } else if (song.artist.length > 50) {
+                errors.push(`Song ${songNum}: Artist must be 50 characters or less`);
+            }
+
+            if (song.album && song.album.length > 50) {
+                errors.push(`Song ${songNum}: Album must be 50 characters or less`);
+            }
+
+            if (!song.duration || song.duration.trim() === '') {
+                errors.push(`Song ${songNum}: Duration is required`);
+            } else if (!validateDuration(song.duration)) {
+                errors.push(`Song ${songNum}: Duration must be in format M:SS or MM:SS (e.g., 3:45)`);
+            }
+        });
+    }
+
+    return {
+        valid: errors.length === 0,
+        errors: errors
+    };
+}
+
+/**
+ * gatherFormData - Collect all data from the form
+ *
+ * @returns {Object} - Form data object
+ */
+function gatherFormData() {
+    const playlistName = document.getElementById('playlist-name')?.value || '';
+    const creatorName = document.getElementById('creator-name')?.value || '';
+
+    // Gather all songs
+    const songFields = document.querySelectorAll('.song-field');
+    const songs = [];
+
+    songFields.forEach(field => {
+        const songIndex = field.getAttribute('data-song-index');
+        const title = document.getElementById(`song-title-${songIndex}`)?.value || '';
+        const artist = document.getElementById(`song-artist-${songIndex}`)?.value || '';
+        const album = document.getElementById(`song-album-${songIndex}`)?.value || '';
+        const duration = document.getElementById(`song-duration-${songIndex}`)?.value || '';
+
+        songs.push({ title, artist, album, duration });
+    });
+
+    return {
+        playlistName: playlistName.trim(),
+        creatorName: creatorName.trim(),
+        songs: songs
+    };
+}
+
+/**
+ * showFormErrors - Display validation errors
+ *
+ * @param {string[]} errors - Array of error messages
+ */
+function showFormErrors(errors) {
+    const errorsDiv = document.querySelector('.form-errors');
+    if (!errorsDiv) return;
+
+    if (errors.length === 0) {
+        errorsDiv.style.display = 'none';
+        errorsDiv.innerHTML = '';
+        return;
+    }
+
+    const errorList = errors.map(error => `<li>${error}</li>`).join('');
+    errorsDiv.innerHTML = `<strong>Please fix the following errors:</strong><ul>${errorList}</ul>`;
+    errorsDiv.style.display = 'block';
+
+    // Scroll to errors
+    errorsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/**
+ * createPlaylist - Create a new playlist from validated form data
+ *
+ * @param {Object} formData - Validated form data
+ * @returns {Object} - Newly created playlist object
+ */
+function createPlaylist(formData) {
+    const timestamp = Date.now();
+    const playlistId = `pl-${timestamp}`;
+
+    // Create songs with unique IDs
+    const songs = formData.songs.map((song, index) => ({
+        id: `song-${timestamp}-${index}`,
+        title: song.title,
+        artist: song.artist,
+        album: song.album || 'Unknown Album',
+        duration: song.duration,
+        coverImage: 'assets/img/song.png',
+        liked: false
+    }));
+
+    // Create playlist object
+    const playlist = {
+        id: playlistId,
+        title: formData.playlistName,
+        creator: formData.creatorName,
+        coverImage: 'assets/img/playlist.png',
+        likes: 0,
+        featured: false,
+        likedByUser: false,
+        songs: songs
+    };
+
+    return playlist;
+}
+
+/**
+ * handleCreatePlaylistSubmit - Handle form submission
+ *
+ * @param {Event} event - Form submit event
+ */
+async function handleCreatePlaylistSubmit(event) {
+    event.preventDefault();
+
+    // Gather form data
+    const formData = gatherFormData();
+
+    // Validate
+    const validation = validatePlaylistForm(formData);
+
+    if (!validation.valid) {
+        showFormErrors(validation.errors);
+        return;
+    }
+
+    // Clear errors
+    showFormErrors([]);
+
+    // Create playlist
+    const newPlaylist = createPlaylist(formData);
+
+    // Add to data array
+    playlistsData.push(newPlaylist);
+
+    // Re-render playlist cards
+    renderPlaylistCards(playlistsData);
+
+    // Close modal
+    closeCreatePlaylistModal();
+
+    // Show success message (optional)
+    console.log('Playlist created successfully:', newPlaylist.title);
+
+    // Could add a toast notification here
+    showSuccessMessage(`Playlist "${newPlaylist.title}" created successfully!`);
+}
+
+/**
+ * showSuccessMessage - Display success message (simple alert for now)
+ *
+ * @param {string} message - Success message to display
+ */
+function showSuccessMessage(message) {
+    // Simple alert for now - could be replaced with a toast notification
+    alert(message);
+}
+
+/**
+ * setupCreatePlaylistHandlers - Setup event listeners for create playlist feature
+ */
+function setupCreatePlaylistHandlers() {
+    // Open modal button
+    const createButton = document.querySelector('.create-playlist-button');
+    if (createButton) {
+        createButton.addEventListener('click', openCreatePlaylistModal);
+    }
+
+    // Close modal button
+    const closeButton = document.querySelector('.create-modal-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', closeCreatePlaylistModal);
+    }
+
+    // Click outside modal to close
+    const modalOverlay = document.querySelector('.create-modal-overlay');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeCreatePlaylistModal();
+            }
+        });
+    }
+
+    // Cancel button
+    const cancelButton = document.querySelector('.cancel-button');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', closeCreatePlaylistModal);
+    }
+
+    // Add song button
+    const addSongButton = document.querySelector('.add-song-button');
+    if (addSongButton) {
+        addSongButton.addEventListener('click', addSongField);
+    }
+
+    // Form submission
+    const form = document.getElementById('create-playlist-form');
+    if (form) {
+        form.addEventListener('submit', handleCreatePlaylistSubmit);
+    }
+
+    // Escape key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.querySelector('.create-modal-overlay');
+            if (modal && modal.style.display === 'flex') {
+                closeCreatePlaylistModal();
+            }
+        }
+    });
+}
+
+// =============================================================================
 // INITIALIZATION
 // =============================================================================
 
@@ -880,6 +1308,9 @@ async function init() {
 
     // Setup modal handlers
     setupModalHandlers();
+
+    // Setup create playlist handlers
+    setupCreatePlaylistHandlers();
 
     console.log(`Loaded ${playlists.length} playlists`);
 }
