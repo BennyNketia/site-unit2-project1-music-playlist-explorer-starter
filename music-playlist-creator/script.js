@@ -349,6 +349,10 @@ function openModal(playlist) {
     // Populate modal with playlist data
     populateModalContent(playlist);
 
+    // Reset and setup AI description UI
+    resetDescriptionUI();
+    setupDescriptionButton();
+
     // Show modal
     modalOverlay.style.display = 'flex';
 
@@ -589,6 +593,238 @@ function shufflePlaylistSongs(playlistId) {
     }
 
     console.log(`Shuffled playlist "${playlist.title}" (${playlist.songs.length} songs)`);
+}
+
+// =============================================================================
+// AI PLAYLIST DESCRIPTION
+// =============================================================================
+
+/**
+ * getPlaylistDescription - Generate AI description for a playlist
+ *
+ * Matches spec from planning.md:
+ * - Uses OpenRouter API with free Gemma or Llama model
+ * - Creates prompt from playlist title, creator, and song list
+ * - Returns 2-3 sentence description
+ * - Handles errors gracefully
+ *
+ * @param {Object} playlist - Playlist object with title, creator, songs
+ * @returns {Promise<string>} - Generated description text
+ * @throws {Error} - On API error, network error, or timeout
+ */
+async function getPlaylistDescription(playlist) {
+    // Validate input
+    if (!playlist || !playlist.title || !playlist.songs) {
+        throw new Error('Invalid playlist data');
+    }
+
+    // Check if API key is configured
+    if (!CONFIG || !CONFIG.OPENROUTER_API_KEY || CONFIG.OPENROUTER_API_KEY === 'YOUR_OPENROUTER_API_KEY_HERE') {
+        throw new Error('OpenRouter API key not configured. Please add your API key to config.js');
+    }
+
+    // Build song list for prompt (limit to first 10 songs for token efficiency)
+    const songList = playlist.songs.slice(0, 10).map(song =>
+        `- ${song.title} by ${song.artist}`
+    ).join('\n');
+
+    // Construct the prompt
+    const userPrompt = `Generate a 2-3 sentence description for this playlist:
+
+Playlist: ${playlist.title}
+Curator: ${playlist.creator}
+Songs in this playlist:
+${songList}
+
+Guidelines:
+- Capture the mood, vibe, and theme
+- Describe the musical style
+- Focus on the listening experience
+- Do NOT list individual songs
+- Keep it to 2-3 sentences
+- Use sensory and emotional language
+
+Description:`;
+
+    // Prepare API request
+    const requestBody = {
+        model: CONFIG.MODEL,
+        max_tokens: CONFIG.MAX_TOKENS,
+        messages: [
+            {
+                role: 'system',
+                content: 'You are a music curator writing engaging playlist descriptions.'
+            },
+            {
+                role: 'user',
+                content: userPrompt
+            }
+        ]
+    };
+
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+
+    try {
+        // Make API call
+        const response = await fetch(CONFIG.OPENROUTER_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${CONFIG.OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': window.location.origin,
+                'X-Title': 'Music Playlist Explorer'
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        // Check response status
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('API error:', response.status, response.statusText, errorData);
+
+            if (response.status === 401) {
+                throw new Error('Invalid API key. Please check your config.js');
+            } else if (response.status === 429) {
+                throw new Error('Rate limit exceeded. Please try again later');
+            } else {
+                throw new Error('Unable to generate description');
+            }
+        }
+
+        // Parse response
+        const data = await response.json();
+
+        // Validate response structure
+        if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+            console.error('Invalid API response:', data);
+            throw new Error('Received invalid description format');
+        }
+
+        // Extract and return description
+        const description = data.choices[0].message.content.trim();
+
+        console.log(`Generated description for "${playlist.title}":`, description);
+
+        return description;
+
+    } catch (error) {
+        clearTimeout(timeoutId);
+
+        // Handle specific error types
+        if (error.name === 'AbortError') {
+            console.error('Description request timed out');
+            throw new Error('Description request timed out');
+        }
+
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.error('Network error fetching playlist description:', error);
+            throw new Error('Unable to connect to description service');
+        }
+
+        // Re-throw other errors
+        throw error;
+    }
+}
+
+/**
+ * handleGetDescriptionClick - Handle click on "Get Description" button
+ * Shows loading state, calls API, displays result or error
+ */
+async function handleGetDescriptionClick() {
+    const button = document.querySelector('.get-description-button');
+    const descriptionElement = document.querySelector('.playlist-description');
+
+    if (!button || !descriptionElement) {
+        console.error('Description UI elements not found');
+        return;
+    }
+
+    if (!currentModalPlaylistId) {
+        console.error('No playlist currently displayed');
+        return;
+    }
+
+    const playlist = playlistsData.find(p => p.id === currentModalPlaylistId);
+    if (!playlist) {
+        console.error('Playlist not found');
+        return;
+    }
+
+    // Show loading state
+    button.disabled = true;
+    button.textContent = '✨ Generating...';
+    descriptionElement.style.display = 'block';
+    descriptionElement.textContent = 'Loading...';
+    descriptionElement.className = 'playlist-description loading';
+
+    try {
+        // Get AI description
+        const description = await getPlaylistDescription(playlist);
+
+        // Display success
+        descriptionElement.textContent = description;
+        descriptionElement.className = 'playlist-description';
+
+        // Hide button after successful generation
+        button.style.display = 'none';
+
+        // Store description in playlist object (optional, for caching)
+        playlist.aiDescription = description;
+
+    } catch (error) {
+        console.error('Failed to get description:', error);
+
+        // Display error message
+        descriptionElement.textContent = error.message || 'Unable to generate description. Please try again.';
+        descriptionElement.className = 'playlist-description error';
+
+        // Re-enable button for retry
+        button.disabled = false;
+        button.textContent = '✨ Get AI Description';
+    }
+}
+
+/**
+ * setupDescriptionButton - Attach event listener to description button
+ * Called when modal opens to ensure fresh listener
+ */
+function setupDescriptionButton() {
+    const button = document.querySelector('.get-description-button');
+
+    if (button) {
+        // Remove old listener if exists
+        button.replaceWith(button.cloneNode(true));
+
+        // Get fresh reference and add listener
+        const newButton = document.querySelector('.get-description-button');
+        newButton.addEventListener('click', handleGetDescriptionClick);
+    }
+}
+
+/**
+ * resetDescriptionUI - Reset description section when modal opens
+ * Clears previous description and shows button
+ */
+function resetDescriptionUI() {
+    const button = document.querySelector('.get-description-button');
+    const descriptionElement = document.querySelector('.playlist-description');
+
+    if (button) {
+        button.style.display = 'block';
+        button.disabled = false;
+        button.textContent = '✨ Get AI Description';
+    }
+
+    if (descriptionElement) {
+        descriptionElement.style.display = 'none';
+        descriptionElement.textContent = '';
+        descriptionElement.className = 'playlist-description';
+    }
 }
 
 // =============================================================================
