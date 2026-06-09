@@ -274,26 +274,46 @@ If the API call fails or the model doesn't respond:
 
 **What API does it call and with what prompt structure?**
 
-**API:** Claude API (Anthropic) via the Messages API endpoint
+**API:** OpenRouter API (using free Gemma or Llama models)
 
-**API Endpoint:** `https://api.anthropic.com/v1/messages`
+**API Endpoint:** `https://openrouter.ai/api/v1/chat/completions`
+
+**Authentication:** 
+- Header: `Authorization: Bearer YOUR_OPENROUTER_API_KEY`
+- Header: `HTTP-Referer: YOUR_SITE_URL` (optional, for ranking)
+- Header: `X-Title: YOUR_APP_NAME` (optional, for rankings)
+
+**Model Options (free tier):**
+- `google/gemma-2-9b-it:free` (Gemma 2 9B Instruct)
+- `meta-llama/llama-3.2-3b-instruct:free` (Llama 3.2 3B Instruct)
 
 **Request Structure:**
 ```javascript
 {
-  model: "claude-3-5-sonnet-20241022",
+  model: "google/gemma-2-9b-it:free",  // or llama model
   max_tokens: 200,
-  messages: [{
-    role: "user",
-    content: [prompt with playlist data]
-  }]
+  messages: [
+    {
+      role: "system",
+      content: "You are a music curator writing engaging playlist descriptions."
+    },
+    {
+      role: "user",
+      content: [prompt with playlist data]
+    }
+  ]
 }
 ```
 
 **Prompt Structure:**
+
+**System message:**
 ```
 You are a music curator writing engaging playlist descriptions.
+```
 
+**User message:**
+```
 Generate a 2-3 sentence description for this playlist:
 
 Playlist: [title]
@@ -370,3 +390,31 @@ async function handleGetDescriptionClick() {
   }
 }
 ```
+
+**Response Parsing:**
+OpenRouter returns responses in OpenAI-compatible format:
+```javascript
+{
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "The generated description text here..."
+      }
+    }
+  ]
+}
+```
+
+Extract the description:
+```javascript
+const description = data.choices[0].message.content.trim();
+```
+
+**Why OpenRouter?**
+- **Free models available**: Gemma and Llama models are free-tier, no billing required
+- **Standard pattern**: Same integration structure as Claude, OpenAI, or any LLM API
+- **Easy to switch**: Changing to Claude API later is just swapping endpoint, model name, and auth header
+- **Production-ready**: Same pattern used in real-world applications
+
+The skill being learned is **"how to integrate any LLM into a product feature"**, not provider-specific implementation.
