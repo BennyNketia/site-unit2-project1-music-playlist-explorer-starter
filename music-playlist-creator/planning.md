@@ -169,3 +169,204 @@ function selectRandomPlaylist() {
 - From index.html → Click "Featured" nav link → Load featured.html (shows random playlist)
 - From featured.html → Click "All Playlists" nav link → Load index.html (shows grid)
 - Refreshing featured.html → New random playlist is selected and displayed
+
+---
+
+## AI Feature Spec
+
+### Role
+The AI model should act as a **music curator and storytelling expert** who can capture the essence and vibe of a playlist in a compelling, engaging way.
+
+### Task
+Generate a descriptive summary for a music playlist that:
+- Captures the overall mood, vibe, and theme of the playlist
+- Reflects the musical style and genre based on the playlist name, creator, and song list
+- Creates an emotional connection with the listener
+- Helps users understand what kind of experience they'll get from listening
+
+### Inputs
+The model will receive the following playlist data:
+1. **Playlist title** (string) — The name of the playlist
+2. **Creator name** (string) — Who created/curated the playlist
+3. **Song list** (array) — List of songs including:
+   - Song title
+   - Artist name
+   - Album name
+
+**Example input structure:**
+```javascript
+{
+  title: "Chill Vibes",
+  creator: "DJ Smooth",
+  songs: [
+    { title: "Sunset Dreams", artist: "The Wavelengths", album: "Coastal Nights" },
+    { title: "Coffee Shop Jazz", artist: "Urban Trio", album: "Morning Brew" },
+    // ... more songs
+  ]
+}
+```
+
+### Output Format
+The AI should return a **2-3 sentence description** that:
+- Opens with the mood/vibe (e.g., "Perfect for...", "Dive into...", "Experience...")
+- Describes the musical style or genre characteristics
+- Ends with the emotional or practical benefit to the listener
+
+**Example outputs:**
+- "Perfect for lazy Sunday afternoons and quiet moments of reflection. This collection blends smooth jazz, mellow indie tracks, and coastal-inspired instrumentals to create a relaxing atmosphere. Let these sounds wash over you as you unwind and recharge."
+- "Get your heart pumping with this high-energy mix of motivational anthems and pulse-pounding beats. Designed for intense workouts and personal records, every track builds momentum to push you past your limits. Fuel your fire and unleash your beast mode."
+
+### Constraints
+The model should **AVOID**:
+- ❌ Listing individual songs by name (e.g., "This playlist includes Sunset Dreams, Coffee Shop Jazz...")
+- ❌ Generic marketing language (e.g., "amazing collection", "you'll love this")
+- ❌ Overly long descriptions (keep it to 2-3 sentences max)
+- ❌ Mentioning specific years or decades unless highly relevant to the playlist theme
+- ❌ Using clichés (e.g., "something for everyone", "takes you on a journey")
+- ❌ Technical music jargon that casual listeners won't understand
+
+The model should **FAVOR**:
+- ✅ Sensory and emotional language (mood, feeling, atmosphere)
+- ✅ Clear, specific descriptions of the musical style
+- ✅ Practical use cases (working out, studying, relaxing, partying)
+- ✅ Authentic, conversational tone
+- ✅ Painting a picture of the listening experience
+
+### Failure Behavior
+If the API call fails or the model doesn't respond:
+
+**UI Behavior:**
+1. The "Get Description" button should remain clickable (allow retry)
+2. Display an error message in place of the description: "Unable to generate description. Please try again."
+3. The error message should be styled differently (muted color, smaller font) to distinguish it from a real description
+4. The error should not break the modal or prevent other functionality (like, shuffle, close)
+
+**User Experience:**
+- The failure should be graceful and non-blocking
+- Users can continue to interact with the rest of the modal
+- Users can retry by clicking "Get Description" again
+- The error message should be helpful but not alarming
+
+**Technical Handling:**
+- Log the error to console for debugging
+- Catch network errors, timeout errors, and API errors
+- Display user-friendly message (not raw error text)
+- Clear any loading states
+
+---
+
+## Function Specs
+
+### getPlaylistDescription Function
+
+**Function Name:** `getPlaylistDescription(playlist)`
+
+**What does this function take in?**
+- A `playlist` object containing:
+  - `title` (string) — The playlist name
+  - `creator` (string) — The playlist creator/curator
+  - `songs` (array of objects) — Each song has `title`, `artist`, and `album`
+
+**What does it return?**
+- Returns a **Promise** that resolves to:
+  - **Success case:** A string containing the AI-generated description (2-3 sentences)
+  - **Error case:** Throws an error that should be caught by the caller
+
+**What API does it call and with what prompt structure?**
+
+**API:** Claude API (Anthropic) via the Messages API endpoint
+
+**API Endpoint:** `https://api.anthropic.com/v1/messages`
+
+**Request Structure:**
+```javascript
+{
+  model: "claude-3-5-sonnet-20241022",
+  max_tokens: 200,
+  messages: [{
+    role: "user",
+    content: [prompt with playlist data]
+  }]
+}
+```
+
+**Prompt Structure:**
+```
+You are a music curator writing engaging playlist descriptions.
+
+Generate a 2-3 sentence description for this playlist:
+
+Playlist: [title]
+Curator: [creator]
+Songs in this playlist:
+- [song1 title] by [artist1]
+- [song2 title] by [artist2]
+- [song3 title] by [artist3]
+...
+
+Guidelines:
+- Capture the mood, vibe, and theme
+- Describe the musical style
+- Focus on the listening experience
+- Do NOT list individual songs
+- Keep it to 2-3 sentences
+- Use sensory and emotional language
+
+Description:
+```
+
+**What happens on error?**
+
+**Error Handling Strategy:**
+1. **Network Errors** (fetch fails, timeout):
+   - Catch the error
+   - Log: `console.error('Network error fetching playlist description:', error)`
+   - Throw a user-friendly error: `throw new Error('Unable to connect to description service')`
+
+2. **API Errors** (401 unauthorized, 429 rate limit, 500 server error):
+   - Check response status
+   - Log: `console.error('API error:', response.status, response.statusText)`
+   - Throw a user-friendly error: `throw new Error('Unable to generate description')`
+
+3. **Invalid Response** (unexpected format, missing data):
+   - Validate response structure
+   - Log: `console.error('Invalid API response:', data)`
+   - Throw: `throw new Error('Received invalid description format')`
+
+4. **Timeout** (request takes too long):
+   - Set a timeout of 10 seconds
+   - If exceeded, abort the request
+   - Throw: `throw new Error('Description request timed out')`
+
+**Caller Responsibility:**
+The calling function (e.g., `handleGetDescriptionClick`) should:
+- Display loading state while waiting
+- Catch the error with try-catch
+- Display error message in the UI
+- Remove loading state
+- Allow user to retry
+
+**Example Usage:**
+```javascript
+async function handleGetDescriptionClick() {
+  const descriptionElement = document.querySelector('.playlist-description');
+  const button = document.querySelector('.get-description-button');
+  
+  // Show loading state
+  button.disabled = true;
+  button.textContent = 'Generating...';
+  descriptionElement.textContent = 'Loading...';
+  
+  try {
+    const description = await getPlaylistDescription(currentPlaylist);
+    descriptionElement.textContent = description;
+    button.style.display = 'none'; // Hide button after success
+  } catch (error) {
+    console.error('Failed to get description:', error);
+    descriptionElement.textContent = 'Unable to generate description. Please try again.';
+    descriptionElement.classList.add('error-message');
+    button.disabled = false;
+    button.textContent = 'Get Description';
+  }
+}
+```
