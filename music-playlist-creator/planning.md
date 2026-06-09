@@ -93,3 +93,79 @@ The songs in the modal rearrange themselves into a new random order. Everything 
 ### What should happen when the user clicks shuffle multiple times?
 
 Every time you click shuffle, it generates a brand new random order. It doesn't just toggle between two orders or anything - each click is completely random. You can click it as many times as you want and keep getting different arrangements.
+
+---
+
+## Featured Page
+
+### Page Layout
+
+The Featured page has three main sections:
+
+1. **Header** - Navigation bar with page title and links to navigate between Featured and All Playlists pages
+2. **Main Content** - Two-column layout:
+   - **Left side** — Large playlist cover image and playlist title/creator info
+   - **Right side** — Complete song list with all song details (thumbnail, title, artist, album, duration, like button)
+3. **Footer** - Copyright information
+
+**Layout specifics:**
+- Left column takes ~40% width, right column takes ~60% width
+- On mobile screens, layout stacks vertically (left on top, right below)
+- Cover image on left should be significantly larger than in the modal (~300px vs 150px)
+- Song list should be scrollable if it exceeds viewport height
+
+### Random Playlist Selection Function
+
+**Function Name:** `selectRandomPlaylist()`
+
+**What it takes in:**
+- No parameters (accesses global `playlistsData` array)
+
+**What it returns:**
+- Returns a single playlist object randomly selected from the available playlists
+
+**When it runs:**
+- Runs automatically on page load (in the `init()` function)
+- Runs every time the page is refreshed (browser refresh)
+- Does NOT run when navigating away and back (that would be a new page load anyway)
+
+**How it works:**
+1. Get the total count of playlists
+2. Generate a random index between 0 and count-1 using `Math.random()` and `Math.floor()`
+3. Return the playlist at that random index
+4. If no playlists exist, return null and show an error message
+
+**Example:**
+```javascript
+function selectRandomPlaylist() {
+    if (!playlistsData || playlistsData.length === 0) {
+        return null;
+    }
+    const randomIndex = Math.floor(Math.random() * playlistsData.length);
+    return playlistsData[randomIndex];
+}
+```
+
+### Navigation Between Pages
+
+**Requirements:**
+- Users can move between Featured page and All Playlists page without using browser back/forward buttons
+- Navigation should be clear and accessible
+
+**Implementation approach:**
+1. **Navigation bar in header** — Present on both pages with buttons/links:
+   - "Featured" — links to `featured.html`
+   - "All Playlists" — links to `index.html`
+   
+2. **Visual feedback** — Current page's nav button should be highlighted/active
+
+3. **File structure:**
+   - `index.html` — All Playlists page (existing)
+   - `featured.html` — Featured page (new)
+   - Both pages share `style.css` and `data.json`
+   - `featured.html` has its own `featured.js` for featured-specific logic
+
+**Navigation flow:**
+- From index.html → Click "Featured" nav link → Load featured.html (shows random playlist)
+- From featured.html → Click "All Playlists" nav link → Load index.html (shows grid)
+- Refreshing featured.html → New random playlist is selected and displayed
