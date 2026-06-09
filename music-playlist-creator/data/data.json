@@ -43,6 +43,33 @@
           "duration": "5:03",
           "coverImage": "assets/img/song.png",
           "liked": false
+        },
+        {
+          "id": "song-030",
+          "title": "Evening Glow",
+          "artist": "Tranquil Tones",
+          "album": "Peaceful Moments",
+          "duration": "4:18",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-031",
+          "title": "Garden Rain",
+          "artist": "Nature Sounds",
+          "album": "Ambient Escapes",
+          "duration": "3:56",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-032",
+          "title": "Moonlight Serenade",
+          "artist": "Nightfall Collective",
+          "album": "After Hours",
+          "duration": "4:42",
+          "coverImage": "assets/img/song.png",
+          "liked": false
         }
       ]
     },
@@ -78,6 +105,42 @@
           "artist": "Adrenaline Rush",
           "album": "Unstoppable",
           "duration": "3:58",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-033",
+          "title": "Never Give Up",
+          "artist": "Champion Mindset",
+          "album": "Victory Lap",
+          "duration": "3:34",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-034",
+          "title": "Sprint to Finish",
+          "artist": "High Energy",
+          "album": "Endurance",
+          "duration": "3:27",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-035",
+          "title": "Iron Will",
+          "artist": "Strong Force",
+          "album": "Mental Toughness",
+          "duration": "4:05",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-036",
+          "title": "Cardio Blast",
+          "artist": "Fitness First",
+          "album": "HIIT Sessions",
+          "duration": "3:22",
           "coverImage": "assets/img/song.png",
           "liked": false
         }
@@ -135,6 +198,33 @@
           "duration": "5:28",
           "coverImage": "assets/img/song.png",
           "liked": false
+        },
+        {
+          "id": "song-037",
+          "title": "Deep Work",
+          "artist": "Productivity Labs",
+          "album": "Flow State",
+          "duration": "6:15",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-038",
+          "title": "Midnight Oil",
+          "artist": "Night Scholars",
+          "album": "All-Nighter",
+          "duration": "5:52",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-039",
+          "title": "Study Rhythm",
+          "artist": "Academic Beats",
+          "album": "Finals Week",
+          "duration": "6:08",
+          "coverImage": "assets/img/song.png",
+          "liked": false
         }
       ]
     },
@@ -170,6 +260,42 @@
           "artist": "Route 66 Collective",
           "album": "Road Stories",
           "duration": "4:21",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-040",
+          "title": "Freedom Drive",
+          "artist": "Open Sky Band",
+          "album": "Wide Horizons",
+          "duration": "3:55",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-041",
+          "title": "Desert Highway",
+          "artist": "Southwest Riders",
+          "album": "Dust and Thunder",
+          "duration": "4:38",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-042",
+          "title": "Rolling Thunder",
+          "artist": "Storm Chasers",
+          "album": "Wild Ride",
+          "duration": "4:17",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-043",
+          "title": "Coastal Cruise",
+          "artist": "Pacific Drive",
+          "album": "Scenic Routes",
+          "duration": "3:49",
           "coverImage": "assets/img/song.png",
           "liked": false
         }
@@ -218,6 +344,33 @@
           "duration": "5:24",
           "coverImage": "assets/img/song.png",
           "liked": false
+        },
+        {
+          "id": "song-044",
+          "title": "Midnight in Paris",
+          "artist": "European Jazz Ensemble",
+          "album": "Continental",
+          "duration": "6:45",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-045",
+          "title": "Swing Street",
+          "artist": "The Rhythm Section",
+          "album": "Back to Basics",
+          "duration": "4:38",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-046",
+          "title": "So What Now",
+          "artist": "Modal Masters",
+          "album": "Kind of Modern",
+          "duration": "7:02",
+          "coverImage": "assets/img/song.png",
+          "liked": false
         }
       ]
     },
@@ -253,6 +406,42 @@
           "artist": "Analog Hearts",
           "album": "Nostalgia Trip",
           "duration": "4:07",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-047",
+          "title": "Basement Tapes",
+          "artist": "DIY Revolution",
+          "album": "Raw and Real",
+          "duration": "3:42",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-048",
+          "title": "Thrift Store Finds",
+          "artist": "Vintage Youth",
+          "album": "Second Hand Soul",
+          "duration": "3:55",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-049",
+          "title": "Small Town Sound",
+          "artist": "Local Legends",
+          "album": "Hometown Heroes",
+          "duration": "4:23",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-050",
+          "title": "Cassette Memories",
+          "artist": "Retro Wave",
+          "album": "Rewind",
+          "duration": "3:48",
           "coverImage": "assets/img/song.png",
           "liked": false
         }
@@ -301,6 +490,33 @@
           "duration": "3:38",
           "coverImage": "assets/img/song.png",
           "liked": false
+        },
+        {
+          "id": "song-051",
+          "title": "Tropical Vibes",
+          "artist": "Island Groove",
+          "album": "Paradise Found",
+          "duration": "3:51",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-052",
+          "title": "Festival Anthem",
+          "artist": "Crowd Pleasers",
+          "album": "Main Stage",
+          "duration": "4:28",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-053",
+          "title": "Summer Nights",
+          "artist": "Warm Breeze",
+          "album": "Endless Summer",
+          "duration": "3:33",
+          "coverImage": "assets/img/song.png",
+          "liked": false
         }
       ]
     },
@@ -336,6 +552,42 @@
           "artist": "String Quartet",
           "album": "Harmonious",
           "duration": "7:18",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-054",
+          "title": "Nocturne in E-flat",
+          "artist": "Romantic Era Ensemble",
+          "album": "Moonlight Sonatas",
+          "duration": "8:12",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-055",
+          "title": "Adagio for Reflection",
+          "artist": "Meditation Orchestra",
+          "album": "Inner Peace",
+          "duration": "9:05",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-056",
+          "title": "Canon in D Minor",
+          "artist": "Baroque Collective",
+          "album": "Timeless Classics",
+          "duration": "6:48",
+          "coverImage": "assets/img/song.png",
+          "liked": false
+        },
+        {
+          "id": "song-057",
+          "title": "Cello Suite No. 2",
+          "artist": "Solo Cellist",
+          "album": "Bach Reimagined",
+          "duration": "7:55",
           "coverImage": "assets/img/song.png",
           "liked": false
         }

@@ -1108,6 +1108,286 @@ footer p {
 }
 
 /* =====================================================================================
+ * PAGE NAVIGATION
+ * ===================================================================================== */
+
+.page-nav {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+}
+
+.nav-link {
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    font-weight: var(--font-weight-medium);
+    font-size: 0.95rem;
+    transition: all var(--transition-base);
+    position: relative;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+}
+
+/* =====================================================================================
+ * FEATURED PAGE LAYOUT
+ * ===================================================================================== */
+
+.featured-main {
+    min-height: calc(100vh - 140px);
+    padding: var(--space-2xl) var(--space-lg);
+}
+
+.featured-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: var(--space-3xl);
+    align-items: start;
+}
+
+/* Featured Left Column - Playlist Info */
+.featured-left {
+    position: sticky;
+    top: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.featured-image-container {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+}
+
+.featured-playlist-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.featured-image-container:hover .featured-playlist-image {
+    transform: scale(1.05);
+}
+
+.featured-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.featured-playlist-title {
+    font-size: 2.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    line-height: 1.2;
+    margin: 0;
+}
+
+.featured-playlist-creator {
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+}
+
+.featured-playlist-meta {
+    display: flex;
+    gap: var(--space-xl);
+    align-items: center;
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featured-likes {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.featured-likes .like-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.featured-likes .like-icon:hover {
+    transform: scale(1.1);
+}
+
+.featured-likes .like-icon.liked {
+    color: var(--color-accent-primary);
+}
+
+.featured-likes .like-count {
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.featured-song-count {
+    display: flex;
+    gap: var(--space-xs);
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+}
+
+.featured-song-count .song-count-number {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+/* Featured Right Column - Song List */
+.featured-right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.featured-songs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featured-songs-header h3 {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.shuffle-button-featured {
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.shuffle-button-featured:hover {
+    background: var(--color-bg-elevated);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.shuffle-button-featured:active {
+    transform: translateY(0);
+}
+
+.shuffle-button-featured.shuffled {
+    animation: buttonPulse 0.3s ease;
+}
+
+.featured-songs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+    padding-right: var(--space-sm);
+}
+
+/* Custom scrollbar for featured songs */
+.featured-songs::-webkit-scrollbar {
+    width: 8px;
+}
+
+.featured-songs::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+.featured-songs::-webkit-scrollbar-thumb {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+}
+
+.featured-songs::-webkit-scrollbar-thumb:hover {
+    background: var(--color-bg-elevated);
+}
+
+.loading-message,
+.no-songs {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-xl);
+    font-size: 1rem;
+}
+
+/* Responsive Featured Page */
+@media (max-width: 1024px) {
+    .featured-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-xl);
+    }
+
+    .featured-left {
+        position: static;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .featured-songs {
+        max-height: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .featured-main {
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    .featured-playlist-title {
+        font-size: 2rem;
+    }
+
+    .featured-songs-header {
+        flex-direction: column;
+        gap: var(--space-md);
+        align-items: flex-start;
+    }
+
+    .shuffle-button-featured {
+        width: 100%;
+    }
+}
+
+/* =====================================================================================
  * ACCESSIBILITY & PERFORMANCE
  * ===================================================================================== */
 
