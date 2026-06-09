@@ -702,9 +702,12 @@ Description:`;
             if (response.status === 401) {
                 throw new Error('Invalid API key. Please check your config.js');
             } else if (response.status === 429) {
-                throw new Error('Rate limit exceeded. Please try again later');
+                // Check if error data has retry-after info
+                const retryAfter = response.headers.get('retry-after');
+                const waitTime = retryAfter ? `Wait ${retryAfter} seconds` : 'Wait a few minutes';
+                throw new Error(`Rate limit exceeded. ${waitTime} and try again. Free tier limits reset periodically.`);
             } else {
-                throw new Error('Unable to generate description');
+                throw new Error(`Unable to generate description (Error ${response.status})`);
             }
         }
 
@@ -800,12 +803,23 @@ async function handleGetDescriptionClick() {
         console.error('Error stack:', error.stack);
 
         // Display error message
-        descriptionElement.textContent = error.message || 'Unable to generate description. Please try again.';
+        const errorMessage = error.message || 'Unable to generate description. Please try again.';
+        descriptionElement.textContent = errorMessage;
         descriptionElement.className = 'playlist-description error';
 
         // Re-enable button for retry
         button.disabled = false;
-        button.textContent = '✨ Get AI Description';
+
+        // Special handling for rate limit errors
+        if (error.message.includes('Rate limit')) {
+            button.textContent = '🔄 Retry in 1 min';
+            // Auto-change button text after 60 seconds
+            setTimeout(() => {
+                button.textContent = '✨ Get AI Description';
+            }, 60000);
+        } else {
+            button.textContent = '✨ Get AI Description';
+        }
     }
 }
 
