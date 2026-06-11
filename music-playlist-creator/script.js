@@ -164,12 +164,25 @@ function createPlaylistCard(playlist) {
     likes.appendChild(likeIcon);
     likes.appendChild(likeCount);
 
+    // Create edit button
+    const editButton = document.createElement('button');
+    editButton.className = 'playlist-edit-button';
+    editButton.setAttribute('aria-label', `Edit ${playlist.title} playlist`);
+    editButton.innerHTML = '<span class="edit-icon">✎</span>';
+
+    // Add edit event listener
+    editButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent card click event from firing
+        openEditPlaylistModal(playlist.id);
+    });
+
     info.appendChild(title);
     info.appendChild(creator);
     info.appendChild(likes);
 
     card.appendChild(img);
     card.appendChild(info);
+    card.appendChild(editButton);
 
     return card;
 }
@@ -242,6 +255,10 @@ function togglePlaylistLike(playlistId, likeIconElement, likeCountElement) {
         likeIconElement.style.animation = 'none';
         setTimeout(() => {
             likeIconElement.style.animation = 'likeHeartPulse 0.3s ease';
+            // Remove inline animation style after animation completes
+            setTimeout(() => {
+                likeIconElement.style.animation = '';
+            }, 300);
         }, 10);
 
     } else {
@@ -259,11 +276,99 @@ function togglePlaylistLike(playlistId, likeIconElement, likeCountElement) {
         likeIconElement.style.animation = 'none';
         setTimeout(() => {
             likeIconElement.style.animation = 'likeHeartPulse 0.3s ease';
+            // Remove inline animation style after animation completes
+            setTimeout(() => {
+                likeIconElement.style.animation = '';
+            }, 300);
         }, 10);
     }
 
     // Log for debugging (can be removed in production)
     console.log(`Playlist "${playlist.title}" ${isCurrentlyLiked ? 'unliked' : 'liked'}. New count: ${playlist.likes}`);
+}
+
+/**
+ * toggleSongLike - Toggle the liked state of a song
+ *
+ * Finds the song within the currently displayed playlist and toggles its liked state.
+ * Updates both the data model and DOM with visual feedback.
+ *
+ * @param {string} songId - The unique ID of the song to toggle
+ * @param {HTMLElement} likeButtonElement - The like button DOM element to update
+ * @returns {void} - Side effect: modifies playlistsData and DOM
+ */
+function toggleSongLike(songId, likeButtonElement) {
+    // Defensive checks
+    if (!songId) {
+        console.error('toggleSongLike: songId is required');
+        return;
+    }
+    if (!likeButtonElement) {
+        console.error('toggleSongLike: likeButtonElement is required');
+        return;
+    }
+
+    // Find the song in any playlist
+    let targetSong = null;
+
+    for (const playlist of playlistsData) {
+        const song = playlist.songs.find(s => s.id === songId);
+        if (song) {
+            targetSong = song;
+            break;
+        }
+    }
+
+    if (!targetSong) {
+        console.error(`toggleSongLike: Song with id ${songId} not found`);
+        return;
+    }
+
+    // Branch determination: Check current liked state
+    const isCurrentlyLiked = targetSong.liked;
+
+    if (!isCurrentlyLiked) {
+        // BRANCH 1: Unliked → Liked
+        // Data model changes
+        targetSong.liked = true;
+
+        // DOM changes
+        likeButtonElement.classList.add('liked');
+        likeButtonElement.setAttribute('aria-pressed', 'true');
+
+        // Visual feedback animation
+        likeButtonElement.style.animation = 'none';
+        setTimeout(() => {
+            likeButtonElement.style.animation = 'likeHeartPulse 0.3s ease';
+            // Remove inline animation style after animation completes
+            setTimeout(() => {
+                likeButtonElement.style.animation = '';
+            }, 300);
+        }, 10);
+
+        console.log(`Song "${targetSong.title}" liked`);
+
+    } else {
+        // BRANCH 2: Liked → Unliked
+        // Data model changes
+        targetSong.liked = false;
+
+        // DOM changes
+        likeButtonElement.classList.remove('liked');
+        likeButtonElement.setAttribute('aria-pressed', 'false');
+
+        // Visual feedback animation
+        likeButtonElement.style.animation = 'none';
+        setTimeout(() => {
+            likeButtonElement.style.animation = 'likeHeartPulse 0.3s ease';
+            // Remove inline animation style after animation completes
+            setTimeout(() => {
+                likeButtonElement.style.animation = '';
+            }, 300);
+        }, 10);
+
+        console.log(`Song "${targetSong.title}" unliked`);
+    }
 }
 
 /**
@@ -419,6 +524,8 @@ function populateModalSongList(playlist) {
 function createSongElement(song) {
     const article = document.createElement('article');
     article.className = 'song-item';
+    article.setAttribute('data-song-id', song.id);
+    article.style.cursor = 'pointer';
 
     article.innerHTML = `
         <img class="song-thumbnail" src="${song.coverImage}" alt="">
@@ -430,8 +537,29 @@ function createSongElement(song) {
         <span class="song-duration">${song.duration}</span>
         <button class="song-like-button ${song.liked ? 'liked' : ''}"
                 aria-label="Like this song"
+                aria-pressed="${song.liked ? 'true' : 'false'}"
                 data-song-id="${song.id}">♥</button>
     `;
+
+    // Add click event to play song
+    article.addEventListener('click', (e) => {
+        // Don't trigger if clicking the like button
+        if (e.target.classList.contains('song-like-button')) {
+            return;
+        }
+
+        // Play the song
+        playSong(song.id, currentModalPlaylistId);
+    });
+
+    // Add event listener to song like button
+    const likeButton = article.querySelector('.song-like-button');
+    if (likeButton) {
+        likeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSongLike(song.id, likeButton);
+        });
+    }
 
     return article;
 }
@@ -752,8 +880,8 @@ Description:`;
  * Shows loading state, calls API, displays result or error
  */
 async function handleGetDescriptionClick() {
-    const button = document.querySelector('.get-description-button');
-    const descriptionElement = document.querySelector('.playlist-description');
+    const button = document.querySelector('.get-description-button-header');
+    const descriptionElement = document.querySelector('.playlist-description-display');
 
     if (!button || !descriptionElement) {
         console.error('Description UI elements not found');
@@ -775,8 +903,8 @@ async function handleGetDescriptionClick() {
     button.disabled = true;
     button.textContent = '✨ Generating...';
     descriptionElement.style.display = 'block';
-    descriptionElement.textContent = 'Loading...';
-    descriptionElement.className = 'playlist-description loading';
+    descriptionElement.textContent = 'Loading description...';
+    descriptionElement.className = 'playlist-description-display loading';
 
     try {
         console.log('Attempting to get description for playlist:', playlist.title);
@@ -788,10 +916,11 @@ async function handleGetDescriptionClick() {
 
         // Display success
         descriptionElement.textContent = description;
-        descriptionElement.className = 'playlist-description';
+        descriptionElement.className = 'playlist-description-display';
 
-        // Hide button after successful generation
-        button.style.display = 'none';
+        // Change button text after successful generation
+        button.textContent = '✅ Description Generated';
+        button.disabled = true;
 
         // Store description in playlist object (optional, for caching)
         playlist.aiDescription = description;
@@ -805,7 +934,7 @@ async function handleGetDescriptionClick() {
         // Display error message
         const errorMessage = error.message || 'Unable to generate description. Please try again.';
         descriptionElement.textContent = errorMessage;
-        descriptionElement.className = 'playlist-description error';
+        descriptionElement.className = 'playlist-description-display error';
 
         // Re-enable button for retry
         button.disabled = false;
@@ -828,36 +957,49 @@ async function handleGetDescriptionClick() {
  * Called when modal opens to ensure fresh listener
  */
 function setupDescriptionButton() {
-    const button = document.querySelector('.get-description-button');
+    const button = document.querySelector('.get-description-button-header');
 
     if (button) {
         // Remove old listener if exists
         button.replaceWith(button.cloneNode(true));
 
         // Get fresh reference and add listener
-        const newButton = document.querySelector('.get-description-button');
+        const newButton = document.querySelector('.get-description-button-header');
         newButton.addEventListener('click', handleGetDescriptionClick);
     }
 }
 
 /**
  * resetDescriptionUI - Reset description section when modal opens
- * Clears previous description and shows button
+ * Checks if playlist already has a cached description and displays it
  */
 function resetDescriptionUI() {
-    const button = document.querySelector('.get-description-button');
-    const descriptionElement = document.querySelector('.playlist-description');
+    const button = document.querySelector('.get-description-button-header');
+    const descriptionElement = document.querySelector('.playlist-description-display');
 
-    if (button) {
-        button.style.display = 'block';
+    if (!button || !descriptionElement) return;
+
+    // Get the current playlist
+    const playlist = playlistsData.find(p => p.id === currentModalPlaylistId);
+
+    // Check if this playlist already has a description
+    if (playlist && playlist.aiDescription) {
+        // Show cached description
+        descriptionElement.textContent = playlist.aiDescription;
+        descriptionElement.className = 'playlist-description-display';
+        descriptionElement.style.display = 'block';
+
+        // Update button to show it's already generated
+        button.textContent = '✅ Description Generated';
+        button.disabled = true;
+    } else {
+        // No cached description - reset to default state
         button.disabled = false;
         button.textContent = '✨ Get AI Description';
-    }
 
-    if (descriptionElement) {
         descriptionElement.style.display = 'none';
         descriptionElement.textContent = '';
-        descriptionElement.className = 'playlist-description';
+        descriptionElement.className = 'playlist-description-display';
     }
 }
 
@@ -866,14 +1008,19 @@ function resetDescriptionUI() {
 // =============================================================================
 
 let songFieldCounter = 0;
+let currentEditPlaylistId = null; // Track which playlist is being edited
 
 /**
  * openCreatePlaylistModal - Open the create playlist form modal
  */
 function openCreatePlaylistModal() {
+    currentEditPlaylistId = null; // Clear edit mode
     const modal = document.querySelector('.create-modal-overlay');
     if (modal) {
         modal.style.display = 'flex';
+
+        // Update modal title and button for create mode
+        updateModalMode('create');
 
         // Reset form and add initial song field
         resetCreatePlaylistForm();
@@ -888,6 +1035,89 @@ function openCreatePlaylistModal() {
 }
 
 /**
+ * openEditPlaylistModal - Open the edit playlist form modal
+ *
+ * @param {string} playlistId - The ID of the playlist to edit
+ */
+function openEditPlaylistModal(playlistId) {
+    const playlist = playlistsData.find(p => p.id === playlistId);
+    if (!playlist) {
+        console.error(`Playlist with id ${playlistId} not found`);
+        return;
+    }
+
+    currentEditPlaylistId = playlistId; // Set edit mode
+    const modal = document.querySelector('.create-modal-overlay');
+    if (modal) {
+        modal.style.display = 'flex';
+
+        // Update modal title and button for edit mode
+        updateModalMode('edit');
+
+        // Reset form first
+        resetCreatePlaylistForm();
+
+        // Pre-populate form with playlist data
+        populateEditForm(playlist);
+
+        // Focus on first input
+        setTimeout(() => {
+            const firstInput = document.getElementById('playlist-name');
+            if (firstInput) firstInput.focus();
+        }, 100);
+    }
+}
+
+/**
+ * updateModalMode - Update modal title and button text based on mode
+ *
+ * @param {string} mode - Either 'create' or 'edit'
+ */
+function updateModalMode(mode) {
+    const modalTitle = document.getElementById('create-modal-title');
+    const submitButton = document.querySelector('.submit-button');
+
+    if (mode === 'create') {
+        if (modalTitle) modalTitle.textContent = 'Create New Playlist';
+        if (submitButton) submitButton.textContent = 'Create Playlist';
+    } else if (mode === 'edit') {
+        if (modalTitle) modalTitle.textContent = 'Edit Playlist';
+        if (submitButton) submitButton.textContent = 'Update Playlist';
+    }
+}
+
+/**
+ * populateEditForm - Pre-populate form with existing playlist data
+ *
+ * @param {Object} playlist - The playlist object to edit
+ */
+function populateEditForm(playlist) {
+    // Set playlist details
+    const playlistNameInput = document.getElementById('playlist-name');
+    const creatorNameInput = document.getElementById('creator-name');
+
+    if (playlistNameInput) playlistNameInput.value = playlist.title;
+    if (creatorNameInput) creatorNameInput.value = playlist.creator;
+
+    // Add song fields for each existing song
+    playlist.songs.forEach(song => {
+        addSongField();
+        const songIndex = songFieldCounter;
+
+        // Populate song data
+        const titleInput = document.getElementById(`song-title-${songIndex}`);
+        const artistInput = document.getElementById(`song-artist-${songIndex}`);
+        const albumInput = document.getElementById(`song-album-${songIndex}`);
+        const durationInput = document.getElementById(`song-duration-${songIndex}`);
+
+        if (titleInput) titleInput.value = song.title;
+        if (artistInput) artistInput.value = song.artist;
+        if (albumInput) albumInput.value = song.album === 'Unknown Album' ? '' : song.album;
+        if (durationInput) durationInput.value = song.duration;
+    });
+}
+
+/**
  * closeCreatePlaylistModal - Close the create playlist modal
  */
 function closeCreatePlaylistModal() {
@@ -895,6 +1125,7 @@ function closeCreatePlaylistModal() {
     if (modal) {
         modal.style.display = 'none';
         resetCreatePlaylistForm();
+        currentEditPlaylistId = null; // Clear edit mode
     }
 }
 
@@ -1184,7 +1415,46 @@ function createPlaylist(formData) {
 }
 
 /**
+ * updatePlaylist - Update an existing playlist with new data
+ *
+ * @param {string} playlistId - ID of the playlist to update
+ * @param {Object} formData - Validated form data with new values
+ */
+function updatePlaylist(playlistId, formData) {
+    const playlist = playlistsData.find(p => p.id === playlistId);
+    if (!playlist) {
+        console.error(`Playlist with id ${playlistId} not found`);
+        return;
+    }
+
+    // Preserve original song IDs if songs exist, otherwise generate new ones
+    const existingSongIds = playlist.songs.map(s => s.id);
+    const timestamp = Date.now();
+
+    // Update songs - preserve existing song IDs where possible
+    const updatedSongs = formData.songs.map((song, index) => ({
+        id: existingSongIds[index] || `song-${timestamp}-${index}`,
+        title: song.title,
+        artist: song.artist,
+        album: song.album || 'Unknown Album',
+        duration: song.duration,
+        coverImage: 'assets/img/song.png',
+        liked: playlist.songs[index]?.liked || false // Preserve like status
+    }));
+
+    // Update playlist properties (preserve certain fields)
+    playlist.title = formData.playlistName;
+    playlist.creator = formData.creatorName;
+    playlist.songs = updatedSongs;
+    // Preserve: id, coverImage, likes, featured, likedByUser, originalSongOrder, aiDescription
+
+    showSuccessMessage(`Playlist "${playlist.title}" updated successfully!`);
+    console.log('Playlist updated successfully:', playlist.title);
+}
+
+/**
  * handleCreatePlaylistSubmit - Handle form submission
+ * Handles both create and edit modes
  *
  * @param {Event} event - Form submit event
  */
@@ -1205,23 +1475,23 @@ async function handleCreatePlaylistSubmit(event) {
     // Clear errors
     showFormErrors([]);
 
-    // Create playlist
-    const newPlaylist = createPlaylist(formData);
-
-    // Add to data array
-    playlistsData.push(newPlaylist);
+    // Check if we're in edit mode or create mode
+    if (currentEditPlaylistId) {
+        // EDIT MODE: Update existing playlist
+        updatePlaylist(currentEditPlaylistId, formData);
+    } else {
+        // CREATE MODE: Create new playlist
+        const newPlaylist = createPlaylist(formData);
+        playlistsData.push(newPlaylist);
+        showSuccessMessage(`Playlist "${newPlaylist.title}" created successfully!`);
+        console.log('Playlist created successfully:', newPlaylist.title);
+    }
 
     // Re-render playlist cards
     renderPlaylistCards(playlistsData);
 
     // Close modal
     closeCreatePlaylistModal();
-
-    // Show success message (optional)
-    console.log('Playlist created successfully:', newPlaylist.title);
-
-    // Could add a toast notification here
-    showSuccessMessage(`Playlist "${newPlaylist.title}" created successfully!`);
 }
 
 /**
@@ -1290,6 +1560,422 @@ function setupCreatePlaylistHandlers() {
 }
 
 // =============================================================================
+// MUSIC PLAYER FUNCTIONALITY
+// =============================================================================
+
+let currentPlayingPlaylist = null; // Track which playlist is currently playing
+let currentPlayingSongIndex = 0; // Track which song in the playlist is playing
+let isPlaying = false; // Track play/pause state
+let progressInterval = null; // Interval for updating progress bar
+let currentSongStartTime = null; // When the current song started playing
+let currentSongDurationSeconds = 0; // Duration of current song in seconds
+let elapsedTimeSeconds = 0; // How many seconds have elapsed
+
+/**
+ * playSong - Start playing a song
+ *
+ * @param {string} songId - The ID of the song to play
+ * @param {string} playlistId - The ID of the playlist containing the song
+ */
+function playSong(songId, playlistId) {
+    // Find the playlist
+    const playlist = playlistsData.find(p => p.id === playlistId);
+    if (!playlist) {
+        console.error('Playlist not found:', playlistId);
+        return;
+    }
+
+    // Find the song index
+    const songIndex = playlist.songs.findIndex(s => s.id === songId);
+    if (songIndex === -1) {
+        console.error('Song not found:', songId);
+        return;
+    }
+
+    // Check if this song is already loaded in the player
+    const isSameSong = currentPlayingPlaylist === playlistId &&
+                       currentPlayingSongIndex === songIndex;
+
+    if (isSameSong) {
+        // Same song - just toggle play/pause (don't restart)
+        if (isPlaying) {
+            // Currently playing -> pause it
+            togglePlayPause();
+            console.log(`Paused: ${playlist.songs[songIndex].title}`);
+        } else {
+            // Currently paused -> resume it
+            togglePlayPause();
+            console.log(`Resumed: ${playlist.songs[songIndex].title}`);
+        }
+        return;
+    }
+
+    // Different song - stop current and load new one
+    if (isPlaying) {
+        stopProgressTracking();
+    }
+
+    // Update current playing state
+    currentPlayingPlaylist = playlistId;
+    currentPlayingSongIndex = songIndex;
+    isPlaying = true;
+
+    // Update player UI (reset progress since it's a new song)
+    updatePlayerUI(playlist.songs[songIndex], true);
+
+    // Show the player bar
+    showPlayerBar();
+
+    // Update play/pause button state
+    updatePlayPauseButton();
+
+    // Update visual state of song items (show which is playing)
+    updateSongPlayingState(songId);
+
+    // Start progress tracking
+    startProgressTracking();
+
+    console.log(`Now playing: ${playlist.songs[songIndex].title}`);
+}
+
+/**
+ * parseDuration - Convert duration string "M:SS" to seconds
+ *
+ * @param {string} duration - Duration in format "3:45"
+ * @returns {number} - Duration in seconds
+ */
+function parseDuration(duration) {
+    const parts = duration.split(':');
+    const minutes = parseInt(parts[0], 10) || 0;
+    const seconds = parseInt(parts[1], 10) || 0;
+    return minutes * 60 + seconds;
+}
+
+/**
+ * formatTime - Convert seconds to "M:SS" format
+ *
+ * @param {number} seconds - Time in seconds
+ * @returns {string} - Formatted time "3:45"
+ */
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+/**
+ * updatePlayerUI - Update the player bar with song information
+ *
+ * @param {Object} song - The song object to display
+ * @param {boolean} resetProgress - Whether to reset the progress (default: true)
+ */
+function updatePlayerUI(song, resetProgress = true) {
+    const playerBar = document.querySelector('.music-player-bar');
+    if (!playerBar) return;
+
+    const thumbnail = playerBar.querySelector('.player-thumbnail');
+    const title = playerBar.querySelector('.player-song-title');
+    const artist = playerBar.querySelector('.player-song-artist');
+    const totalTime = playerBar.querySelector('.player-total-time');
+
+    if (thumbnail) thumbnail.src = song.coverImage;
+    if (title) title.textContent = song.title;
+    if (artist) artist.textContent = song.artist;
+    if (totalTime) totalTime.textContent = song.duration;
+
+    // Parse song duration for progress tracking
+    currentSongDurationSeconds = parseDuration(song.duration);
+
+    // Only reset progress if this is a new song
+    if (resetProgress) {
+        elapsedTimeSeconds = 0;
+        updateProgressBar(0);
+    }
+}
+
+/**
+ * showPlayerBar - Display the music player bar
+ */
+function showPlayerBar() {
+    const playerBar = document.querySelector('.music-player-bar');
+    if (playerBar) {
+        playerBar.style.display = 'flex';
+        document.body.classList.add('player-active');
+    }
+}
+
+/**
+ * hidePlayerBar - Hide the music player bar
+ */
+function hidePlayerBar() {
+    const playerBar = document.querySelector('.music-player-bar');
+    if (playerBar) {
+        playerBar.style.display = 'none';
+        document.body.classList.remove('player-active');
+    }
+
+    // Stop progress tracking
+    stopProgressTracking();
+
+    // Remove playing state from song items
+    const allSongItems = document.querySelectorAll('.song-item');
+    allSongItems.forEach(item => {
+        item.classList.remove('playing');
+    });
+
+    // Reset playing state
+    currentPlayingPlaylist = null;
+    currentPlayingSongIndex = 0;
+    isPlaying = false;
+    elapsedTimeSeconds = 0;
+}
+
+/**
+ * updateProgressBar - Update the progress bar visual state
+ *
+ * @param {number} progressPercent - Progress percentage (0-100)
+ */
+function updateProgressBar(progressPercent) {
+    const progressFill = document.querySelector('.player-progress-fill');
+    const progressHandle = document.querySelector('.player-progress-handle');
+    const progressBar = document.querySelector('.player-progress-bar');
+    const currentTimeDisplay = document.querySelector('.player-current-time');
+
+    if (progressFill) {
+        progressFill.style.width = `${progressPercent}%`;
+    }
+
+    if (progressHandle) {
+        progressHandle.style.left = `${progressPercent}%`;
+    }
+
+    if (progressBar) {
+        progressBar.setAttribute('aria-valuenow', Math.round(progressPercent));
+    }
+
+    if (currentTimeDisplay) {
+        currentTimeDisplay.textContent = formatTime(elapsedTimeSeconds);
+    }
+}
+
+/**
+ * startProgressTracking - Start updating the progress bar
+ */
+function startProgressTracking() {
+    // Clear any existing interval
+    if (progressInterval) {
+        clearInterval(progressInterval);
+    }
+
+    // Record when the song started
+    currentSongStartTime = Date.now();
+    elapsedTimeSeconds = 0;
+
+    // Update progress every 100ms for smooth animation
+    progressInterval = setInterval(() => {
+        if (!isPlaying) return;
+
+        // Calculate elapsed time
+        elapsedTimeSeconds += 0.1;
+
+        // Calculate progress percentage
+        const progressPercent = (elapsedTimeSeconds / currentSongDurationSeconds) * 100;
+
+        // Update UI
+        updateProgressBar(progressPercent);
+
+        // Check if song has finished
+        if (elapsedTimeSeconds >= currentSongDurationSeconds) {
+            // Song finished - play next song
+            console.log('Song finished, playing next...');
+            playNextSong();
+        }
+    }, 100); // Update every 100ms
+}
+
+/**
+ * stopProgressTracking - Stop updating the progress bar
+ */
+function stopProgressTracking() {
+    if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+    }
+}
+
+/**
+ * togglePlayPause - Toggle between play and pause states
+ */
+function togglePlayPause() {
+    isPlaying = !isPlaying;
+    updatePlayPauseButton();
+
+    if (isPlaying) {
+        startProgressTracking();
+    } else {
+        stopProgressTracking();
+    }
+}
+
+/**
+ * updatePlayPauseButton - Update play/pause button appearance
+ */
+function updatePlayPauseButton() {
+    const playPauseBtn = document.querySelector('.player-play-pause');
+    if (!playPauseBtn) return;
+
+    if (isPlaying) {
+        playPauseBtn.textContent = '⏸';
+        playPauseBtn.classList.add('playing');
+        playPauseBtn.setAttribute('aria-label', 'Pause');
+    } else {
+        playPauseBtn.textContent = '▶';
+        playPauseBtn.classList.remove('playing');
+        playPauseBtn.setAttribute('aria-label', 'Play');
+    }
+}
+
+/**
+ * playNextSong - Skip to the next song in the playlist
+ */
+function playNextSong() {
+    if (!currentPlayingPlaylist) return;
+
+    const playlist = playlistsData.find(p => p.id === currentPlayingPlaylist);
+    if (!playlist) return;
+
+    // Stop current progress tracking
+    stopProgressTracking();
+
+    // Move to next song (wrap around to start if at end)
+    currentPlayingSongIndex = (currentPlayingSongIndex + 1) % playlist.songs.length;
+
+    const nextSong = playlist.songs[currentPlayingSongIndex];
+
+    // Update UI with new song
+    updatePlayerUI(nextSong);
+
+    // Update visual state
+    updateSongPlayingState(nextSong.id);
+
+    // Keep playing state
+    isPlaying = true;
+    updatePlayPauseButton();
+
+    // Start progress tracking for new song
+    startProgressTracking();
+
+    console.log(`Next song: ${nextSong.title}`);
+}
+
+/**
+ * playPreviousSong - Skip to the previous song in the playlist
+ */
+function playPreviousSong() {
+    if (!currentPlayingPlaylist) return;
+
+    const playlist = playlistsData.find(p => p.id === currentPlayingPlaylist);
+    if (!playlist) return;
+
+    // Stop current progress tracking
+    stopProgressTracking();
+
+    // Move to previous song (wrap around to end if at start)
+    currentPlayingSongIndex = currentPlayingSongIndex - 1;
+    if (currentPlayingSongIndex < 0) {
+        currentPlayingSongIndex = playlist.songs.length - 1;
+    }
+
+    const prevSong = playlist.songs[currentPlayingSongIndex];
+
+    // Update UI with new song
+    updatePlayerUI(prevSong);
+
+    // Update visual state
+    updateSongPlayingState(prevSong.id);
+
+    // Keep playing state
+    isPlaying = true;
+    updatePlayPauseButton();
+
+    // Start progress tracking for new song
+    startProgressTracking();
+
+    console.log(`Previous song: ${prevSong.title}`);
+}
+
+/**
+ * updateSongPlayingState - Update visual state to show which song is playing
+ *
+ * @param {string} songId - The ID of the currently playing song
+ */
+function updateSongPlayingState(songId) {
+    // Remove 'playing' class from all song items
+    const allSongItems = document.querySelectorAll('.song-item');
+    allSongItems.forEach(item => {
+        item.classList.remove('playing');
+    });
+
+    // Add 'playing' class to the current song
+    const currentSongItem = document.querySelector(`.song-item[data-song-id="${songId}"]`);
+    if (currentSongItem) {
+        currentSongItem.classList.add('playing');
+    }
+}
+
+/**
+ * handleProgressBarClick - Handle click on progress bar to seek
+ *
+ * @param {MouseEvent} event - Click event on progress bar
+ */
+function handleProgressBarClick(event) {
+    const progressBar = event.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const progressPercent = (clickX / rect.width) * 100;
+
+    // Calculate new elapsed time
+    elapsedTimeSeconds = (progressPercent / 100) * currentSongDurationSeconds;
+
+    // Update progress bar immediately
+    updateProgressBar(progressPercent);
+
+    // If playing, the interval will continue from new position
+    console.log(`Seeked to ${formatTime(elapsedTimeSeconds)}`);
+}
+
+/**
+ * setupPlayerHandlers - Attach event listeners to player controls
+ */
+function setupPlayerHandlers() {
+    const playPauseBtn = document.querySelector('.player-play-pause');
+    const nextBtn = document.querySelector('.player-next');
+    const prevBtn = document.querySelector('.player-prev');
+    const closeBtn = document.querySelector('.player-close');
+    const progressBar = document.querySelector('.player-progress-bar');
+
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', togglePlayPause);
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', playNextSong);
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', playPreviousSong);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hidePlayerBar);
+    }
+
+    if (progressBar) {
+        progressBar.addEventListener('click', handleProgressBarClick);
+    }
+}
+
+// =============================================================================
 // INITIALIZATION
 // =============================================================================
 
@@ -1311,6 +1997,9 @@ async function init() {
 
     // Setup create playlist handlers
     setupCreatePlaylistHandlers();
+
+    // Setup music player handlers
+    setupPlayerHandlers();
 
     console.log(`Loaded ${playlists.length} playlists`);
 }

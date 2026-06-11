@@ -56,6 +56,33 @@
         </div>
     </main>
 
+    <!-- Music Player Bar (Fixed at Bottom) -->
+    <div class="music-player-bar" style="display: none;" role="region" aria-label="Now playing">
+        <div class="player-song-info">
+            <img class="player-thumbnail" src="assets/img/song.png" alt="">
+            <div class="player-text">
+                <h4 class="player-song-title">Song Title</h4>
+                <p class="player-song-artist">Artist Name</p>
+            </div>
+        </div>
+        <div class="player-controls">
+            <button class="player-button player-prev" aria-label="Previous song">⏮</button>
+            <button class="player-button player-play-pause" aria-label="Play/Pause">▶</button>
+            <button class="player-button player-next" aria-label="Next song">⏭</button>
+        </div>
+        <div class="player-progress-container">
+            <span class="player-current-time">0:00</span>
+            <div class="player-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="player-progress-fill"></div>
+                <div class="player-progress-handle"></div>
+            </div>
+            <span class="player-total-time">0:00</span>
+        </div>
+        <div class="player-extra">
+            <button class="player-close" aria-label="Close player">&times;</button>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2026 Music Playlist Explorer</p>
     </footer>

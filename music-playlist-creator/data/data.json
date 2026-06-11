@@ -4,7 +4,7 @@
       "id": "pl-001",
       "title": "Chill Vibes",
       "creator": "DJ Smooth",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/chill vibes.webp",
       "likes": 1247,
       "featured": true,
       "songs": [
@@ -77,7 +77,7 @@
       "id": "pl-002",
       "title": "Workout Energy",
       "creator": "FitBeats",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/workout energy.webp",
       "likes": 3892,
       "featured": true,
       "songs": [
@@ -150,7 +150,7 @@
       "id": "pl-003",
       "title": "Late Night Study",
       "creator": "Focus Flow",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/latenightstudy.jpg",
       "likes": 2156,
       "featured": false,
       "songs": [
@@ -232,7 +232,7 @@
       "id": "pl-004",
       "title": "Road Trip Anthems",
       "creator": "Highway Heroes",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/roadtrip.avif",
       "likes": 5431,
       "featured": true,
       "songs": [
@@ -305,7 +305,7 @@
       "id": "pl-005",
       "title": "Jazz Classics",
       "creator": "The Jazz Curator",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/jazz.jpg",
       "likes": 987,
       "featured": false,
       "songs": [
@@ -378,7 +378,7 @@
       "id": "pl-006",
       "title": "Indie Discoveries",
       "creator": "Alternative Nation",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/indie.jpg",
       "likes": 2743,
       "featured": false,
       "songs": [
@@ -451,7 +451,7 @@
       "id": "pl-007",
       "title": "Summer Party Mix",
       "creator": "Party Starters",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/sumr prty.jpg",
       "likes": 6824,
       "featured": true,
       "songs": [
@@ -524,7 +524,7 @@
       "id": "pl-008",
       "title": "Classical Focus",
       "creator": "Symphony Selections",
-      "coverImage": "assets/img/playlist.png",
+      "coverImage": "assets/img/classical.jpg",
       "likes": 1532,
       "featured": false,
       "songs": [
