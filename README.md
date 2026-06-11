@@ -155,9 +155,7 @@ Deployed Application: [Live Demo](https://bennynketia.github.io/site-unit2-proje
 
 ### Walkthrough Video
 
-`TODO://` Add your walkthrough video link here
-
-**Walkthrough video:** [Music Playlist Explorer Walkthrough](ADD_LOOM_LINK_HERE)
+**Walkthrough video:** [Music Playlist Explorer Walkthrough](https://www.loom.com/share/3b0347ab91424c609f561761ae731a0c)
 
 ### Reflection
 
