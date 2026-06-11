@@ -2,7 +2,7 @@
 
 Submitted by: **Benny Nketia**
 
-Estimated time spent: **40** hours spent in total
+Estimated time spent: **11** hours spent in total
 
 Deployed Application: [Live Demo](https://bennynketia.github.io/site-unit2-project1-music-playlist-explorer-starter/music-playlist-creator/)
 
@@ -257,6 +257,3 @@ music-playlist-creator/
 ✅ **2/5 Stretch Features** - Add New & Edit Playlists  
 🎁 **4 Bonus Features** - Music player, song likes, premium UI
 
----
-
-**⭐ Star this repo if you found it helpful!**
